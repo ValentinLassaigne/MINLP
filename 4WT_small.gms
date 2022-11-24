@@ -83,3 +83,19 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j2.r2      0.00223839      0.00851091
      j2.r3      0.00134303      0.00510655;
 
+variables
+     qkt(k,t) Débit d_eau pompé par la pompe k à la période t
+     xkt(k,t) Pompe k allumé à la période t, sinon 0
+     vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+     qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+     pkt(k,t) Puissance de la pompe k à la période t
+     z Coût total
+
+Equations
+     Cost.. z =e= sum((k,t),pkt(k,t) * tariff(t))
+     Conservation 
+
+
+
+
+
