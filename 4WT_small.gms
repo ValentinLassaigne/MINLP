@@ -85,9 +85,10 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
 
 variables
      qkt(k,t) Débit d_eau pompé par la pompe k à la période t
+     qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+     qlt(l,t)  débit en pipe l au temps t
      xkt(k,t) Pompe k allumé à la période t, sinon 0
      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
-     qrt(r,t) Débit entrant dans chaque réservoir r à la période t
      pkt(k,t) Puissance de la pompe k à la période t
      z Coût total
 
@@ -96,6 +97,22 @@ Equations
      Conservation 
 
 
+Positive Variables q, v, p, z ;
 
+Binary Variable x;
+
+Equations
+    cost    definition de la fonction objective
+    flow(t)   conservation du flow à chaque temps t
+    volumes(r,t)   volumes bornés à chaque temps t et pour chaque réservoir r
+    debits (k,t)   débits bornés pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    puissances(k,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
+    
+cost ..        z  =e=  sum((night(t),k), p(k,t)*tariffnight(t))+sum((t-night(t), k), p(k,t)*tariff(t)) ; #faut-il ainsi procéder pour dissocier les tarifs
+flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+volumes(r,t) .. vmin(r)  =l=  vrt(r,t)  =l=  vmax(r) ;
+debits(k,t) .. 0  =l=  q(k,t)  =l=  99 ; #on fait quoi du débit à ce premier stade ;
+puissances(k,t) .. p(k,t)=
 
 
