@@ -31,7 +31,8 @@ Sets
 
      alias (n,np)          
      alias (k,kp)
-     alias (d,dp);
+     alias (d,dp)
+     alias (t, tp);
 
 Scalar
      height0      reference height at the source (m)      / 0 /
@@ -84,18 +85,13 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j2.r3      0.00134303      0.00510655;
 
 variables
-     qkt(k,t) Débit d_eau pompé par la pompe k à la période t
+     qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
      qrt(r,t) Débit entrant dans chaque réservoir r à la période t
-     qlt(l,t)  débit en pipe l au temps t
-     xkt(k,t) Pompe k allumé à la période t, sinon 0
+     qlt(n,n,t)  débit en pipe l au temps t
+     xkt(c,d,t) Pompe k allumé à la période t, sinon 0
      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
-     pkt(k,t) Puissance de la pompe k à la période t
-     z Coût total
-
-Equations
-     Cost.. z =e= sum((k,t),pkt(k,t) * tariff(t))
-     Conservation 
-
+     pkt(c,d,t) Puissance de la pompe k à la période t
+     z Coût total ;
 
 Positive Variables q, v, p, z ;
 
@@ -104,15 +100,27 @@ Binary Variable x;
 Equations
     cost    definition de la fonction objective
     flow(t)   conservation du flow à chaque temps t
-    volumes(r,t)   volumes bornés à chaque temps t et pour chaque réservoir r
-    debits (k,t)   débits bornés pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
-    puissances(k,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
-    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
+    volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+    volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+    demandes(r,t,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
     
-cost ..        z  =e=  sum((night(t),k), p(k,t)*tariffnight(t))+sum((t-night(t), k), p(k,t)*tariff(t)) ; #faut-il ainsi procéder pour dissocier les tarifs
+cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+*faut-il ainsi procéder pour dissocier les tarifs
 flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
-volumes(r,t) .. vmin(r)  =l=  vrt(r,t)  =l=  vmax(r) ;
-debits(k,t) .. 0  =l=  q(k,t)  =l=  99 ; #on fait quoi du débit à ce premier stade ;
-puissances(k,t) .. p(k,t)=
+volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r) ;
+debits_min(k,t) .. xkt(k,t)*0  =l=  q(k,t)   ;
+debits_max(k,t) .. q(k,t)  =l=  xkt(k,t) * 99 ;
+*on fait quoi du débit à ce premier stade ;
+puissances(k,t) .. pkt(k,t) =e= gamma(c,0)*xkt(k,t) + gamma(c,1)*qkt(k,t) ;
+demandes(r,(t,tp)) .. vrt(r,t) + qrt(r,t) =e= vrt(r,tp) + demand(r,t) ;
 
+Model Planification /all/ ;
+
+Solve Planification using lp minimizing z ;
+
+Display ;
 
