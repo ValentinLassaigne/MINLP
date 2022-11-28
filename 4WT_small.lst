@@ -1,0 +1,167 @@
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 11/28/22 18:58:02 Page 1
+Pump scheduling smallest
+C o m p i l a t i o n
+
+
+      version: 2.0
+      author of this version: sofdem@gmail.com
+      characteristics: 9-period model for free GAMS version
+   7   
+   8  *$offlisting
+   9  * stops the echo print of the input file
+  10  *$offsymxref
+  11  * stops the print of a complete cros-reference list of symbols
+  12  *option limcol = 0;
+  13  * stops the print of the column listing
+  14  *option limrow = 0;
+  15  * stops the print of the equation listing
+  16  *option solprint = off;
+  17  * stop report solution
+  18   
+  19  Sets
+  20       n          nodes      / s, j1, j2, r1, r2, r3, r4 /
+  21       j(n)       junctions  / j1, j2 /
+  22       r(n)       reservoirs / r1, r2, r3, r4 /
+  23       l(n,n)     pipes      / s.j1, j1.j2, j1.r1, j1.r4, j2.r2, j2.r3 /
+  24       t          1-hour periods / t1*t9 /
+  25       night(t)   night periods  / t1*t4 /
+  26       c          pump class   / small /
+  27       d          pump number  / p1*p3 /
+  28       k(c,d)     pump type    / small.p1*p3 /
+  29       degree     polynomial degrees / 0*2 /
+  30   
+  31   
+  32       alias (n,np)
+  33       alias (k,kp)
+  34       alias (d,dp)
+  35       alias (t, tp);
+  36   
+  37  Scalar
+  38       height0      reference height at the source (m)      / 0 /
+  39       tariffnight  electricity hourly tariff at night (euro.kWh^-1)  / 0.02916 /
+  40       tariffday    electricity hourly tariff at day (euro.kWh^-1)    / 0.04609 /
+  41   
+  42  Parameter tariff(t)   electricity tariff;
+  43      tariff(t)        = tariffday;
+  44      tariff(night(t)) = tariffnight;
+  45   
+  46  Parameters
+  47      height(n)   elevation at each node relative to s (m)
+  48                  / s 0, j1 30, j2 30, r1 50, r2 50, r3 45, r4 35 /
+  49   
+  50      surface(r)  mean surface of each reservoir (m^2)
+  51                  / r1 80, r2 80, r3 80, r4 80 /
+  52   
+  53      vmin(r)     minimal volume of each reservoir (m^3)
+  54                  / r1 100, r2 100, r3 100, r4 100 /
+  55   
+  56      vmax(r)     maximal volume of each reservoir (m^3)
+  57                  / r1 300, r2 300, r3 300, r4 300 /
+  58   
+  59  Parameter vinit(r) initial volume of each reservoir;
+  60      vinit(r) = vmin(r);
+  61   
+  62  * a polynomial is represented as the list of coefficients for each term degree
+  63  Table psi(c,degree) quadratic fit of the service pressure (m) on the flow (m^3.h^-1) for each class of pumps
+  64                    0              1            2
+  65        small       63.0796        0            -0.0064085;
+  66   
+  67  Table gamma(c,degree) linear fit of the electrical power (kW) on the flow (m^3.h^-1) for each class of pumps
+  68                    0              1
+  69        small       3.81101     0.09627;
+  70   
+  71  Table demand(r,t) demand in water at each reservoir each hour (m^3)
+  72       t1     t2    t3    t4     t5     t6    t7      t8      t9
+  73  r1   9.83   5.0   3.67  6.5    5.67   7.5   3.0     3.0     2.0
+  74  r2   44.83  18.0  0.0   0.0    0.0    0.0   0.0     45.0    51.67
+  75  r3   14.0   13.33 25.5  11.0   10.0   10.0  11.0    10.33   30.17
+  76  r4   1.0    1.0   8.5   9.5    4.0    2.33  0.0     1.0     0.83
+  77   
+  78  Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^-1) for each pipe
+  79                  2               1
+  80       s.j1       0.00005425      0.00038190
+  81       j1.j2      0.00027996      0.00149576
+  82       j1.r1      0.00089535      0.00340436
+  83       j1.r4      0.00044768      0.00170218
+  84       j2.r2      0.00223839      0.00851091
+  85       j2.r3      0.00134303      0.00510655;
+  86   
+  87  variables
+  88       qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+  89       qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+  90       qlt(n,n,t)  débit en pipe l au temps t
+  91       xkt(c,d,t) Pompe k allumé à la période t, sinon 0
+  92       vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+  93       pkt(c,d,t) Puissance de la pompe k à la période t
+  94       z Coût total ;
+  95   
+  96  Positive Variables q, v, p, z ;
+  97   
+  98  Binary Variable x;
+  99   
+ 100  Equations
+ 101      cost    definition de la fonction objective
+ 102      flow(t)   conservation du flow à chaque temps t
+ 103      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+ 104      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+ 105      debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 106      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 107      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+ 108      demandes(r,t,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
+ 109   
+ 110  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 111  *faut-il ainsi procéder pour dissocier les tarifs
+ 112  flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+ 113  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 114  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r) ;
+ 115  debits_min(k,t) .. xkt(k,t)*0  =l=  q(k,t)   ;
+ 116  debits_max(k,t) .. q(k,t)  =l=  xkt(k,t) * 99 ;
+ 117  *on fait quoi du débit à ce premier stade ;
+ 118  puissances(k,t) .. pkt(k,t) =e= gamma(c,0)*xkt(k,t) + gamma(c,1)*qkt(k,t) ;
+****                                         $149,145,148          $149,145,148
+**** 145  Set identifier or quoted element expected
+**** 148  Dimension different - The symbol is referenced with more/less
+****         indices as declared
+**** 149  Uncontrolled set entered as constant
+ 119  demandes(r,(t,tp)) .. vrt(r,t) + qrt(r,t) =e= vrt(r,tp) + demand(r,t) ;
+****             $145  $36$409
+****  36  '=' or '..' or ':=' or '$=' operator expected
+****      rest of statement ignored
+**** 145  Set identifier or quoted element expected
+**** 409  Unrecognizable item - skip to find a new statement
+****        looking for a ';' or a key word to get started again
+ 120   
+ 121  Model Planification /all/ ;
+ 122   
+ 123  Solve Planification using lp minimizing z ;
+****                                          $246,257
+**** 246  Objective variable is not a free variable
+**** 257  Solve statement not checked because of previous errors
+ 124   
+ 125  Display ;
+****          $192
+**** 192  Identifier or quoted string expected
+ 126   
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME sinon OF TYPE VAR  
+**** STRAY NAME v OF TYPE VAR  
+**** STRAY NAME p OF TYPE VAR  
+
+**** 12 ERROR(S)   0 WARNING(S)
+
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
+
+
+USER: Large MUD - 20 User License                    W181015:1136AO-GEN
+      Ecole des Mines de Paris, CMA                              DC4036
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Valentin Lassaigne\Optim\MINLP\4WT_small.gms
+Output     C:\Valentin Lassaigne\Optim\MINLP\4WT_small.lst
+
+**** USER ERROR(S) ENCOUNTERED
