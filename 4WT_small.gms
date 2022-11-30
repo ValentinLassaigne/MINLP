@@ -123,5 +123,3 @@ Model Planification /all/ ;
 Solve Planification using lp minimizing z ;
 
 Display ;
-
-françois
