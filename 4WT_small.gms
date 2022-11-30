@@ -123,4 +123,3 @@ Model Planification /all/;
 Solve Planification using mip minimizing z ;
 
 
-françois
