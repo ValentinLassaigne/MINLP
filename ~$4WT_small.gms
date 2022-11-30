@@ -32,7 +32,7 @@ Sets
      alias (n,np)      
      alias (k,kp)
      alias (d,dp)
-     alias (t, tp);
+     alias (t,tp);
 
 Scalar
      height0      reference height at the source (m)      / 0 /
@@ -85,29 +85,29 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j2.r3      0.00134303      0.00510655;
 
 Positive Variable
-    qkt(c,d,t) DÃ©bit d_eau pompÃ© par la pompe k Ã  la pÃ©riode t
-    qrt(r,t) DÃ©bit entrant dans chaque rÃ©servoir r Ã  la pÃ©riode t
-    qlt(n,n,t)  dÃ©bit en pipe l au temps t 
-    vrt(r,t) Volume d_eau dans les rÃ©servoirs r Ã  la pÃ©riode t
-    pkt(c,d,t) Puissance de la pompe k Ã  la pÃ©riode t;
+    qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+    qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+    qlt(n,n,t)  débit en pipe l au temps t 
+    vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+    pkt(c,d,t) Puissance de la pompe k à la période t;
 
 Binary Variable
-    xkt(c,d,t) Pompe k allumÃ© Ã  la pÃ©riode t, sinon 0 ;
+    xkt(c,d,t) 1 si la pompe k allumé à la période t, sinon 0 ;
      
 free variable
-    z CoÃ»t total ;
+    z Coût total ;
 
 
 
 Equations
     cost    definition de la fonction objective
-    flow(t)   conservation du flow Ã  chaque temps t
-    volumes_min(r,t)   volumes min Ã  chaque temps t et pour chaque rÃ©servoir r
-    volumes_max(r,t)  volumes max Ã  chaque temps t et pour chaque rÃ©servoir r
-    debits_min (c,d,t)   dÃ©bits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumÃ©e)
-    debits_max (c,d,t)   dÃ©bits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumÃ©e)
-    puissances(c,d,t)   puissances de chaque pompe Ã  chaque temps t et pour chaque pompe k
-    demandes(r,t)   demandes pour chaque temps t et pour chaque rÃ©servoir r (aussi conservation du flow dans chaque tank);
+    flow(t)   conservation du flow à chaque temps t
+    volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+    volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
     
 cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
 flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
