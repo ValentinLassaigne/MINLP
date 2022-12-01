@@ -107,7 +107,7 @@ Equations
     debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
     debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
     puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
-    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
+    demandes(r,t,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
     
 cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
 flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
@@ -116,10 +116,10 @@ volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
 debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99 ;
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
-demandes(r,(t,tp)) .. vrt(r,t) + qrt(r,t) =e= vrt(r,tp) + demand(r,t) ;
+demandes(r,t,tp) .. vrt(r,t) + qrt(r,t) =e= vrt(r,tp) + demand(r,t) ;
 
 Model Planification /all/;
 
 Solve Planification using mip minimizing z ;
 
-
+Display 'vinit', vinit;
