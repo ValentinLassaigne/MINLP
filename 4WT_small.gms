@@ -32,7 +32,7 @@ Sets
      alias (n,np)      
      alias (k,kp)
      alias (d,dp)
-     alias (t, tp);
+     alias (t,tp);
 
 Scalar
      height0      reference height at the source (m)      / 0 /
@@ -116,7 +116,7 @@ volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
 debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99 ;
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
-demandes(r,t+1) .. vrt(r,t) + qrt(r,t) =e= vrt(r,t+1) + demand(r,t) ;
+demandes(r,(t,tp)) .. vrt(r,t) + qrt(r,t) =e= vrt(r,tp) + demand(r,t) ;
 
 Model Planification /all/;
 
