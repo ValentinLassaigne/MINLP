@@ -1,0 +1,30 @@
+
+--- Job Customer_Network.gms Start 12/02/22 15:15:47 41.2.0 5110e5ff WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\GAMS\41\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input "C:\Users\nathan.bliscaux\Dropbox\OSE 2022 priv�\Optim\MINLP projet\Customer_Network.gms"
+    PageSize 0
+    ScrDir "C:\Users\nathan.bliscaux\Dropbox\OSE 2022 priv�\Optim\MINLP projet\225a\"
+    SysDir C:\GAMS\41\
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Demo license for Nathan BLISCAUX          G221128|0002CO-GEN
+          MinesParis, France                                       DL080299
+          \\filer-2\Students\nathan.bliscaux\Mes documents\GAMS\gamslice.txt
+          nathan.bliscaux@etu.minesparis.psl.eu, Nathan BLISCAUX           
+          Demo license for demonstration and instructional purposes only
+Processor information: 1 socket(s), 4 core(s), and 8 thread(s) available
+GAMS 41.2.0   Copyright (C) 1987-2022 GAMS Development. All rights reserved
+--- Starting compilation
+--- Customer_Network.gms(106) 3 Mb
+--- Starting execution: elapsed 0:00:00.019
+--- Customer_Network.gms(42) 4 Mb
+*** Status: Normal completion
+--- Job Customer_Network.gms Stop 12/02/22 15:15:47 elapsed 0:00:00.028
+Cannot delete file: 225a\gmsprmNT.dat
+Cannot delete directory: 225a
+Cannot delete directory: 225a
