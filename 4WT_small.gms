@@ -97,8 +97,6 @@ Binary Variable
 free variable
     z Coût total ;
 
-
-
 Equations
     cost    definition de la fonction objective
     flow(t)   conservation du flow à chaque temps t
@@ -108,10 +106,10 @@ Equations
     debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
     puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
     demandes(r,t,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
-    
-    
+
+ 
 cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
-flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qlt(r,t)) ;
 volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
 volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
@@ -123,4 +121,4 @@ Model Planification /all/;
 
 Solve Planification using mip minimizing z ;
 
-Display 'vinit', vinit;
+Display 'vinit', vinit ;
