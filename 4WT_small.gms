@@ -124,5 +124,3 @@ demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-
 Model Planification /all/;
 
 Solve Planification using mip minimizing z ;
-
-Display 'vinit', vinit;
