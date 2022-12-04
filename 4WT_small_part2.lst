@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 17:19:28 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/04/22 11:48:34 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -111,42 +111,374 @@ C o m p i l a t i o n
  109      volume_init(r)  volumes init pour chaque réservoir r
  110      debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
  111      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
- 112      debits_pipe_max(n,n,c,d,t) débit max pour chaque pipe à chaque temps t
- 113      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
- 114      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
- 115   
+ 112      debits_pipeJ_max(n,n,t) débit max pour chaque pipe à chaque temps t
+ 113      debits_pipeS_max(n,n,t) débit max pour chaque pipe à chaque temps t
+ 114      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+ 115      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
  116   
- 117  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
- 118  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
- 119  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
- 120  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
- 121  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
- 122  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
- 123  volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
- 124  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
- 125  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
- 126  debits_pipe_max(l(n,n),k(c,d),t) .. qlt(l,t) =l= xkt(k,t)*(-phi(l,1) + sqrt((phi(l,1)*phi(l,1))-4*(psi(c,2) - phi(l,2))*psi(c,0)))/(2*psi(c,0));
-****                                                                    $145,148         $145,148 $145,148     $145,148   $145,300
-**** 145  Set identifier or quoted element expected
-**** 148  Dimension different - The symbol is referenced with more/less
-****         indices as declared
-**** 300  Remaining errors not printed for this line
- 127  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
- 128  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
- 129   
- 130  Model Planification /all/;
+ 117   
+ 118  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 119  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+ 120  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+ 121  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+ 122  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 123  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 124  volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
+ 125  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+ 126  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
+ 127  debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2')) ;
+ 128  debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
+ 129  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+ 130  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
  131   
- 132  Solve Planification using minlp minimizing z ;
-****                                               $257
-**** 257  Solve statement not checked because of previous errors
+ 132  Model Planification /all/;
+ 133   
+ 134  Solve Planification using minlp minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
-**** 16 ERROR(S)   0 WARNING(S)
+
+COMPILATION TIME     =        0.016 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/04/22 11:48:34 Page 2
+Pump scheduling smallest
+Equation Listing    SOLVE Planification Using MINLP From line 134
 
 
-COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
+---- cost  =E=  definition de la fonction objective
+
+cost..  - 0.02916*pkt(small,p1,t1) - 0.02916*pkt(small,p1,t2) - 0.02916*pkt(small,p1,t3) - 0.02916*pkt(small,p1,t4) - 0.04609*pkt(small,p1,t5) - 0.04609*pkt(small,p1,t6) - 0.04609*pkt(small,p1,t7) - 0.04609*pkt(small,p1,t8) - 0.04609*pkt(small,p1,t9)
+     
+      - 0.02916*pkt(small,p2,t1) - 0.02916*pkt(small,p2,t2) - 0.02916*pkt(small,p2,t3) - 0.02916*pkt(small,p2,t4) - 0.04609*pkt(small,p2,t5) - 0.04609*pkt(small,p2,t6) - 0.04609*pkt(small,p2,t7) - 0.04609*pkt(small,p2,t8) - 0.04609*pkt(small,p2,t9)
+     
+      - 0.02916*pkt(small,p3,t1) - 0.02916*pkt(small,p3,t2) - 0.02916*pkt(small,p3,t3) - 0.02916*pkt(small,p3,t4) - 0.04609*pkt(small,p3,t5) - 0.04609*pkt(small,p3,t6) - 0.04609*pkt(small,p3,t7) - 0.04609*pkt(small,p3,t8) - 0.04609*pkt(small,p3,t9) + z
+      =E= 0 ; (LHS = 0)
+     
+
+---- flow_s  =E=  conservation du flow entre les pompes et la source à chaque temps t
+
+flow_s(t1)..  qkt(small,p1,t1) + qkt(small,p2,t1) + qkt(small,p3,t1) - qlt(s,j1,t1) =E= 0 ; (LHS = 0)
+     
+flow_s(t2)..  qkt(small,p1,t2) + qkt(small,p2,t2) + qkt(small,p3,t2) - qlt(s,j1,t2) =E= 0 ; (LHS = 0)
+     
+flow_s(t3)..  qkt(small,p1,t3) + qkt(small,p2,t3) + qkt(small,p3,t3) - qlt(s,j1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 6 ENTRIES SKIPPED
+
+
+---- flow_r  =E=  conservation du flow à chaque temps t
+
+flow_r(t1,r1)..  - qrt(r1,t1) + qlt(j1,r1,t1) =E= 0 ; (LHS = 0)
+     
+flow_r(t1,r2)..  - qrt(r2,t1) + qlt(j2,r2,t1) =E= 0 ; (LHS = 0)
+     
+flow_r(t1,r3)..  - qrt(r3,t1) + qlt(j2,r3,t1) =E= 0 ; (LHS = 0)
+     
+REMAINING 33 ENTRIES SKIPPED
+
+
+---- flow_j  =E=  conservation du flow à chaque temps t
+
+flow_j(t1,j1)..  qlt(s,j1,t1) - qlt(j1,j2,t1) - qlt(j1,r1,t1) - qlt(j1,r4,t1) =E= 0 ; (LHS = 0)
+     
+flow_j(t1,j2)..  qlt(j1,j2,t1) - qlt(j2,r2,t1) - qlt(j2,r3,t1) =E= 0 ; (LHS = 0)
+     
+flow_j(t2,j1)..  qlt(s,j1,t2) - qlt(j1,j2,t2) - qlt(j1,r1,t2) - qlt(j1,r4,t2) =E= 0 ; (LHS = 0)
+     
+REMAINING 15 ENTRIES SKIPPED
+
+
+---- volumes_min  =L=  volumes min à chaque temps t et pour chaque réservoir r
+
+volumes_min(r1,t1)..  - vrt(r1,t1) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+volumes_min(r1,t2)..  - vrt(r1,t2) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+volumes_min(r1,t3)..  - vrt(r1,t3) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING 33 ENTRIES SKIPPED
+
+
+---- volumes_max  =L=  volumes max à chaque temps t et pour chaque réservoir r
+
+volumes_max(r1,t1)..  vrt(r1,t1) =L= 300 ; (LHS = 0)
+     
+volumes_max(r1,t2)..  vrt(r1,t2) =L= 300 ; (LHS = 0)
+     
+volumes_max(r1,t3)..  vrt(r1,t3) =L= 300 ; (LHS = 0)
+     
+REMAINING 33 ENTRIES SKIPPED
+
+
+---- volume_init  =E=  volumes init pour chaque réservoir r
+
+volume_init(r1)..  vrt(r1,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+     
+volume_init(r2)..  vrt(r2,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+     
+volume_init(r3)..  vrt(r3,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- debits_min  =L=  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+debits_min(small,p1,t1)..  - qkt(small,p1,t1) =L= 0 ; (LHS = 0)
+     
+debits_min(small,p1,t2)..  - qkt(small,p1,t2) =L= 0 ; (LHS = 0)
+     
+debits_min(small,p1,t3)..  - qkt(small,p1,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 24 ENTRIES SKIPPED
+
+
+---- debits_max  =L=  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+debits_max(small,p1,t1)..  qkt(small,p1,t1) - 99.21*xkt(small,p1,t1) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t2)..  qkt(small,p1,t2) - 99.21*xkt(small,p1,t2) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t3)..  qkt(small,p1,t3) - 99.21*xkt(small,p1,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 24 ENTRIES SKIPPED
+
+
+---- debits_pipeJ_max  =L=  débit max pour chaque pipe à chaque temps t
+
+debits_pipeJ_max(j1,j2,t1)..  qlt(j1,j2,t1) =L= 99.0756619238007 ; (LHS = 0)
+     
+debits_pipeJ_max(j1,j2,t2)..  qlt(j1,j2,t2) =L= 99.0756619238007 ; (LHS = 0)
+     
+debits_pipeJ_max(j1,j2,t3)..  qlt(j1,j2,t3) =L= 99.0756619238007 ; (LHS = 0)
+     
+REMAINING 42 ENTRIES SKIPPED
+
+
+---- debits_pipeS_max  =L=  débit max pour chaque pipe à chaque temps t
+
+debits_pipeS_max(s,j1,t1)..  qlt(s,j1,t1) =L= 99.1819244805119 ; (LHS = 0)
+     
+debits_pipeS_max(s,j1,t2)..  qlt(s,j1,t2) =L= 99.1819244805119 ; (LHS = 0)
+     
+debits_pipeS_max(s,j1,t3)..  qlt(s,j1,t3) =L= 99.1819244805119 ; (LHS = 0)
+     
+REMAINING 6 ENTRIES SKIPPED
+
+
+---- puissances  =E=  puissances de chaque pompe à chaque temps t et pour chaque pompe k
+
+puissances(small,p1,t1)..  - 0.09627*qkt(small,p1,t1) + pkt(small,p1,t1) - 3.81101*xkt(small,p1,t1) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t2)..  - 0.09627*qkt(small,p1,t2) + pkt(small,p1,t2) - 3.81101*xkt(small,p1,t2) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t3)..  - 0.09627*qkt(small,p1,t3) + pkt(small,p1,t3) - 3.81101*xkt(small,p1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 24 ENTRIES SKIPPED
+
+
+---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+
+demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 9.83 ; (LHS = 0, INFES = 9.83 ****)
+     
+demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 5 ; (LHS = 0, INFES = 5 ****)
+     
+demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
+     
+REMAINING 29 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/04/22 11:48:34 Page 3
+Pump scheduling smallest
+Column Listing      SOLVE Planification Using MINLP From line 134
+
+
+---- qkt  Débit d_eau pompé par la pompe k à la période t
+
+qkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t1)
+       -1       debits_min(small,p1,t1)
+        1       debits_max(small,p1,t1)
+       -0.0963  puissances(small,p1,t1)
+
+qkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t2)
+       -1       debits_min(small,p1,t2)
+        1       debits_max(small,p1,t2)
+       -0.0963  puissances(small,p1,t2)
+
+qkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t3)
+       -1       debits_min(small,p1,t3)
+        1       debits_max(small,p1,t3)
+       -0.0963  puissances(small,p1,t3)
+
+REMAINING 24 ENTRIES SKIPPED
+
+---- qrt  Débit entrant dans chaque réservoir r à la période t
+
+qrt(r1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t1,r1)
+
+qrt(r1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t2,r1)
+        1       demandes(r1,t2)
+
+qrt(r1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t3,r1)
+        1       demandes(r1,t3)
+
+REMAINING 33 ENTRIES SKIPPED
+
+---- qlt  débit en pipe l au temps t
+
+qlt(s,j1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t1)
+        1       flow_j(t1,j1)
+        1       debits_pipeS_max(s,j1,t1)
+
+qlt(s,j1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t2)
+        1       flow_j(t2,j1)
+        1       debits_pipeS_max(s,j1,t2)
+
+qlt(s,j1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t3)
+        1       flow_j(t3,j1)
+        1       debits_pipeS_max(s,j1,t3)
+
+REMAINING 51 ENTRIES SKIPPED
+
+---- vrt  Volume d_eau dans les réservoirs r à la période t
+
+vrt(r1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t1)
+        1       volumes_max(r1,t1)
+        1       volume_init(r1)
+        1       demandes(r1,t2)
+
+vrt(r1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t2)
+        1       volumes_max(r1,t2)
+       -1       demandes(r1,t2)
+        1       demandes(r1,t3)
+
+vrt(r1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t3)
+        1       volumes_max(r1,t3)
+       -1       demandes(r1,t3)
+        1       demandes(r1,t4)
+
+REMAINING 33 ENTRIES SKIPPED
+
+---- pkt  Puissance de la pompe k à la période t
+
+pkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t1)
+
+pkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t2)
+
+pkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t3)
+
+REMAINING 24 ENTRIES SKIPPED
+
+---- xkt  Pompe k allumé à la période t
+
+xkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t1)
+       -3.811   puissances(small,p1,t1)
+
+xkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t2)
+       -3.811   puissances(small,p1,t2)
+
+xkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t3)
+       -3.811   puissances(small,p1,t3)
+
+REMAINING 24 ENTRIES SKIPPED
+
+---- z  Coût total
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/04/22 11:48:34 Page 4
+Pump scheduling smallest
+Model Statistics    SOLVE Planification Using MINLP From line 134
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          307
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES          208
+NON ZERO ELEMENTS           587     NON LINEAR N-Z              0
+DERIVATIVE POOL              20     CONSTANT POOL              16
+CODE LENGTH                   0     DISCRETE VARIABLES         27
+
+
+GENERATION TIME      =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+
+
+EXECUTION TIME       =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/04/22 11:48:34 Page 5
+Pump scheduling smallest
+Solution Report     SOLVE Planification Using MINLP From line 134
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   Planification       OBJECTIVE  z
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  134
+
+**** SOLVER STATUS     7 Licensing Problems        
+**** MODEL STATUS      11 Licensing Problem        
+**** OBJECTIVE VALUE               NA
+
+ RESOURCE USAGE, LIMIT          0.000      1000.000
+ ITERATION COUNT, LIMIT 2100000000    2000000000
+ EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+*** No license found
+*** To update your license, please contact your distributor.
+*** Too many equations for demo mode
+***   Number of equations          : 307
+***   Maximum allowed              : 300
+
+No solution returned
+
+
+EXECUTION TIME       =        0.016 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
 
 
 USER: Large MUD - 20 User License                    W181015:1136AO-GEN
@@ -158,5 +490,3 @@ USER: Large MUD - 20 User License                    W181015:1136AO-GEN
 
 Input      C:\Valentin Lassaigne\Optim\MINLP\4WT_small_part2.gms
 Output     C:\Valentin Lassaigne\Optim\MINLP\4WT_small_part2.lst
-
-**** USER ERROR(S) ENCOUNTERED

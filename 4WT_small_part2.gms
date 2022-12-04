@@ -109,7 +109,8 @@ Equations
     volume_init(r)  volumes init pour chaque réservoir r
     debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
     debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
-    debits_pipe_max(n,n,c,d,t) débit max pour chaque pipe à chaque temps t
+    debits_pipeJ_max(n,n,t) débit max pour chaque pipe à chaque temps t
+    debits_pipeS_max(n,n,t) débit max pour chaque pipe à chaque temps t
     puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
     demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
     
@@ -123,7 +124,8 @@ volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
 debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
-debits_pipe_max(l(n,n),k(c,d),t) .. qlt(l,t) =l= xkt(k,t)*(-phi(l,1) + sqrt((phi(l,1)*phi(l,1))-4*(psi(c,2) - phi(l,2))*psi(c,0)))/(2*psi(c,0));
+debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2')) ;
+debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
 demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
 
