@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 21:19:22 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 22:25:02 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -92,8 +92,8 @@ C o m p i l a t i o n
   90      qlt(n,n,t)  débit en pipe l au temps t
   91      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
   92      pkt(c,d,t) Puissance de la pompe k à la période t
-  93      charge_j(n,t) Charge à chaque noeud j à la période t
-  94      charge_r(r,t) Charge à chaque réservoir r à la période t;
+  93      charge(n,t) Charge à chaque noeud j à la période t
+  94  *    charge_r(r,t) Charge à chaque réservoir r à la période t;
   95   
   96  Binary Variable
   97      xkt(c,d,t) Pompe k allumé à la période t, sinon 0 ;
@@ -117,38 +117,41 @@ C o m p i l a t i o n
  115      debits_pipeS_max(n,n,t) débit max pour chaque pipe à chaque temps t
  116      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
  117      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
- 118      pression_j(j,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j
- 119      pression_r(r,t)   pressions en chaque réservoir supérieur à l_élévation du niveau d_eau;
- 120   
- 121   
- 122  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
- 123  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
- 124  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
- 125  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
- 126  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
- 127  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
- 128  volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
- 129  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
- 130  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
- 131  debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2')) ;
- 132  debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
- 133  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
- 134  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
- 135  pression_j(j,t) .. charge_j(j,t) =g= height(j);
- 136  pression_r(r,t) .. charge_r(r,t) =g= height(r) + vrt(r,t) / surface(r);
- 137   
- 138  Model Planification /all/;
- 139   
- 140  Solve Planification using minlp minimizing z ;
+ 118      pression_j(n,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j
+ 119      pression_r(r,t)   pressions en chaque réservoir supérieur à l_élévation du niveau d_eau
+ 120      charge_s(t)   charge en s égale au gain de charge des pompes pour tout t
+ 121      charge_j(n,n,t)   charge en j égale charge en j-1 moins la perte de charge des cannalisations pour tout t;
+ 122   
+ 123  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 124  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+ 125  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+ 126  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+ 127  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 128  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 129  volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
+ 130  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+ 131  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
+ 132  debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2')) ;
+ 133  debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
+ 134  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+ 135  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 136  pression_j(j,t) .. charge(j,t) =g= height(j);
+ 137  pression_r(r,t) .. charge(r,t) =g= height(r) + vrt(r,t) / surface(r);
+ 138  charge_s(t) .. charge('s',t) =e= sum((k), psi('small','0')+psi('small','2')*qkt(k,t)*qkt(k,t));
+ 139  charge_j(l(n,np),t) .. charge(np,t) =e= charge(n,t) - (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
+ 140   
+ 141  Model Planification /all/;
+ 142   
+ 143  Solve Planification using minlp minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 21:19:22 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 22:25:02 Page 2
 Pump scheduling smallest
-Equation Listing    SOLVE Planification Using MINLP From line 140
+Equation Listing    SOLVE Planification Using MINLP From line 143
 
 
 ---- cost  =E=  definition de la fonction objective
@@ -295,28 +298,50 @@ REMAINING 29 ENTRIES SKIPPED
 
 ---- pression_j  =G=  pressions en chaque noeud j supérieur à l_élévation du noeud j
 
-pression_j(j1,t1)..  charge_j(j1,t1) =G= 30 ; (LHS = 0, INFES = 30 ****)
+pression_j(j1,t1)..  charge(j1,t1) =G= 30 ; (LHS = 0, INFES = 30 ****)
      
-pression_j(j1,t2)..  charge_j(j1,t2) =G= 30 ; (LHS = 0, INFES = 30 ****)
+pression_j(j1,t2)..  charge(j1,t2) =G= 30 ; (LHS = 0, INFES = 30 ****)
      
-pression_j(j1,t3)..  charge_j(j1,t3) =G= 30 ; (LHS = 0, INFES = 30 ****)
+pression_j(j1,t3)..  charge(j1,t3) =G= 30 ; (LHS = 0, INFES = 30 ****)
      
 REMAINING 15 ENTRIES SKIPPED
 
 
 ---- pression_r  =G=  pressions en chaque réservoir supérieur à l_élévation du niveau d_eau
 
-pression_r(r1,t1)..  - 0.0125*vrt(r1,t1) + charge_r(r1,t1) =G= 50 ; (LHS = 0, INFES = 50 ****)
+pression_r(r1,t1)..  - 0.0125*vrt(r1,t1) + charge(r1,t1) =G= 50 ; (LHS = 0, INFES = 50 ****)
      
-pression_r(r1,t2)..  - 0.0125*vrt(r1,t2) + charge_r(r1,t2) =G= 50 ; (LHS = 0, INFES = 50 ****)
+pression_r(r1,t2)..  - 0.0125*vrt(r1,t2) + charge(r1,t2) =G= 50 ; (LHS = 0, INFES = 50 ****)
      
-pression_r(r1,t3)..  - 0.0125*vrt(r1,t3) + charge_r(r1,t3) =G= 50 ; (LHS = 0, INFES = 50 ****)
+pression_r(r1,t3)..  - 0.0125*vrt(r1,t3) + charge(r1,t3) =G= 50 ; (LHS = 0, INFES = 50 ****)
      
 REMAINING 33 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 21:19:22 Page 3
+
+---- charge_s  =E=  charge en s égale au gain de charge des pompes pour tout t
+
+charge_s(t1)..  (0)*qkt(small,p1,t1) + (0)*qkt(small,p2,t1) + (0)*qkt(small,p3,t1) + charge(s,t1) =E= 189.2388 ; (LHS = 0, INFES = 189.2388 ****)
+     
+charge_s(t2)..  (0)*qkt(small,p1,t2) + (0)*qkt(small,p2,t2) + (0)*qkt(small,p3,t2) + charge(s,t2) =E= 189.2388 ; (LHS = 0, INFES = 189.2388 ****)
+     
+charge_s(t3)..  (0)*qkt(small,p1,t3) + (0)*qkt(small,p2,t3) + (0)*qkt(small,p3,t3) + charge(s,t3) =E= 189.2388 ; (LHS = 0, INFES = 189.2388 ****)
+     
+REMAINING 6 ENTRIES SKIPPED
+
+
+---- charge_j  =E=  charge en j égale charge en j-1 moins la perte de charge des cannalisations pour tout t
+
+charge_j(s,j1,t1)..  (0.0003819)*qlt(s,j1,t1) - charge(s,t1) + charge(j1,t1) =E= 0 ; (LHS = 0)
+     
+charge_j(s,j1,t2)..  (0.0003819)*qlt(s,j1,t2) - charge(s,t2) + charge(j1,t2) =E= 0 ; (LHS = 0)
+     
+charge_j(s,j1,t3)..  (0.0003819)*qlt(s,j1,t3) - charge(s,t3) + charge(j1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 51 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 22:25:02 Page 3
 Pump scheduling smallest
-Column Listing      SOLVE Planification Using MINLP From line 140
+Column Listing      SOLVE Planification Using MINLP From line 143
 
 
 ---- qkt  Débit d_eau pompé par la pompe k à la période t
@@ -327,6 +352,7 @@ qkt(small,p1,t1)
        -1       debits_min(small,p1,t1)
         1       debits_max(small,p1,t1)
        -0.0963  puissances(small,p1,t1)
+       (0)      charge_s(t1)
 
 qkt(small,p1,t2)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
@@ -334,6 +360,7 @@ qkt(small,p1,t2)
        -1       debits_min(small,p1,t2)
         1       debits_max(small,p1,t2)
        -0.0963  puissances(small,p1,t2)
+       (0)      charge_s(t2)
 
 qkt(small,p1,t3)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
@@ -341,6 +368,7 @@ qkt(small,p1,t3)
        -1       debits_min(small,p1,t3)
         1       debits_max(small,p1,t3)
        -0.0963  puissances(small,p1,t3)
+       (0)      charge_s(t3)
 
 REMAINING 24 ENTRIES SKIPPED
 
@@ -369,18 +397,21 @@ qlt(s,j1,t1)
        -1       flow_s(t1)
         1       flow_j(t1,j1)
         1       debits_pipeS_max(s,j1,t1)
+       (0.0004) charge_j(s,j1,t1)
 
 qlt(s,j1,t2)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
        -1       flow_s(t2)
         1       flow_j(t2,j1)
         1       debits_pipeS_max(s,j1,t2)
+       (0.0004) charge_j(s,j1,t2)
 
 qlt(s,j1,t3)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
        -1       flow_s(t3)
         1       flow_j(t3,j1)
         1       debits_pipeS_max(s,j1,t3)
+       (0.0004) charge_j(s,j1,t3)
 
 REMAINING 51 ENTRIES SKIPPED
 
@@ -431,37 +462,24 @@ pkt(small,p1,t3)
 
 REMAINING 24 ENTRIES SKIPPED
 
----- charge_j  Charge à chaque noeud j à la période t
+---- charge  Charge à chaque noeud j à la période t
 
-charge_j(j1,t1)
+charge(s,t1)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_j(j1,t1)
+        1       charge_s(t1)
+       -1       charge_j(s,j1,t1)
 
-charge_j(j1,t2)
+charge(s,t2)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_j(j1,t2)
+        1       charge_s(t2)
+       -1       charge_j(s,j1,t2)
 
-charge_j(j1,t3)
+charge(s,t3)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_j(j1,t3)
+        1       charge_s(t3)
+       -1       charge_j(s,j1,t3)
 
-REMAINING 15 ENTRIES SKIPPED
-
----- charge_r  Charge à chaque réservoir r à la période t
-
-charge_r(r1,t1)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_r(r1,t1)
-
-charge_r(r1,t2)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_r(r1,t2)
-
-charge_r(r1,t3)
-                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
-        1       pression_r(r1,t3)
-
-REMAINING 33 ENTRIES SKIPPED
+REMAINING 60 ENTRIES SKIPPED
 
 ---- xkt  Pompe k allumé à la période t
 
@@ -488,40 +506,40 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 21:19:22 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 22:25:02 Page 4
 Pump scheduling smallest
-Model Statistics    SOLVE Planification Using MINLP From line 140
+Model Statistics    SOLVE Planification Using MINLP From line 143
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS          15     SINGLE EQUATIONS          361
-BLOCKS OF VARIABLES           9     SINGLE VARIABLES          262
-NON ZERO ELEMENTS           677     NON LINEAR N-Z              0
-DERIVATIVE POOL              20     CONSTANT POOL              16
-CODE LENGTH                   0     DISCRETE VARIABLES         27
+BLOCKS OF EQUATIONS          17     SINGLE EQUATIONS          424
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES          271
+NON ZERO ELEMENTS           875     NON LINEAR N-Z             81
+DERIVATIVE POOL              20     CONSTANT POOL              29
+CODE LENGTH                 505     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.079 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.079 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 21:19:22 Page 5
+EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/07/22 22:25:02 Page 5
 Pump scheduling smallest
-Solution Report     SOLVE Planification Using MINLP From line 140
+Solution Report     SOLVE Planification Using MINLP From line 143
 
 
                S O L V E      S U M M A R Y
 
      MODEL   Planification       OBJECTIVE  z
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  140
+     SOLVER  DICOPT              FROM LINE  143
 
 **** SOLVER STATUS     7 Licensing Problems        
 **** MODEL STATUS      11 Licensing Problem        
 **** OBJECTIVE VALUE               NA
 
- RESOURCE USAGE, LIMIT          0.000      1000.000
+ RESOURCE USAGE, LIMIT          0.015      1000.000
  ITERATION COUNT, LIMIT 2100000000    2000000000
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
@@ -535,13 +553,13 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
 *** No license found
 *** To update your license, please contact your distributor.
 *** Too many equations for demo mode
-***   Number of equations          : 361
+***   Number of equations          : 424
 ***   Maximum allowed              : 300
 
 No solution returned
 
 
-EXECUTION TIME       =        0.015 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+EXECUTION TIME       =        0.000 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
 
 
 USER: Large MUD - 20 User License                    W181015:1136AO-GEN
