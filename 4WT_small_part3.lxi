@@ -1,0 +1,29 @@
+B 2 C o m p i l a t i o n
+B 150 Equation Listing    SOLVE Planification Using MINLP From line 140
+D 151 cost
+D 162 flow_s
+D 173 flow_r
+D 184 flow_j
+D 195 volumes_min
+D 206 volumes_max
+D 217 volume_init
+D 228 debits_min
+D 239 debits_max
+D 250 debits_pipeJ_max
+D 261 debits_pipeS_max
+D 272 puissances
+D 283 demandes
+D 294 pression_j
+D 305 pression_r
+B 318 Column Listing      SOLVE Planification Using MINLP From line 140
+E 319 qkt
+E 345 qrt
+E 363 qlt
+E 385 vrt
+E 413 pkt
+E 432 charge_j
+E 448 charge_r
+E 464 xkt
+E 483 z
+B 492 Model Statistics    SOLVE Planification Using MINLP From line 140
+B 510 Solution Report     SOLVE Planification Using MINLP From line 140

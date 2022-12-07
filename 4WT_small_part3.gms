@@ -89,8 +89,8 @@ Positive Variable
     qrt(r,t) Débit entrant dans chaque réservoir r à la période t
     qlt(n,n,t)  débit en pipe l au temps t 
     vrt(r,t) Volume d_eau dans les réservoirs r à la période t
-    pkt(c,d,t) Puissance de la pompe k à la période t;
-    charge_j(j,t) Charge à chaque noeud j à la période t;
+    pkt(c,d,t) Puissance de la pompe k à la période t
+    charge_j(n,t) Charge à chaque noeud j à la période t
     charge_r(r,t) Charge à chaque réservoir r à la période t;
 
 Binary Variable
@@ -114,8 +114,8 @@ Equations
     debits_pipeJ_max(n,n,t) débit max pour chaque pipe à chaque temps t
     debits_pipeS_max(n,n,t) débit max pour chaque pipe à chaque temps t
     puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
-    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
-    pression_j(j,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j;
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+    pression_j(j,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j
     pression_r(r,t)   pressions en chaque réservoir supérieur à l_élévation du niveau d_eau;
 
     
@@ -132,7 +132,8 @@ debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1
 debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
 demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
-pression_j(j,t) .. charge
+pression_j(j,t) .. charge_j(j,t) =g= height(j);
+pression_r(r,t) .. charge_r(r,t) =g= height(r) + vrt(r,t) / surface(r); 
 
 Model Planification /all/;
 
