@@ -1,0 +1,839 @@
+--- Job 4WT.gms Start 12/09/22 17:30:07 41.2.0 5110e5ff WEX-WEI x86 64bit/MS Windows
+--- Applying:
+    C:\GAMS\41\gmsprmNT.txt
+--- GAMS Parameters defined
+    Input C:\Users\nathan.bliscaux\Dropbox\MINLP\MINLP\4WT.gms
+    PageSize 0
+    ScrDir C:\Users\nathan.bliscaux\Dropbox\MINLP\MINLP\225a\
+    SysDir C:\GAMS\41\
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Demo license for Nathan BLISCAUX          G221128|0002CO-GEN
+          MinesParis, France                                       DL080299
+          \\filer-2\Students\nathan.bliscaux\Mes documents\GAMS\gamslice.txt
+          nathan.bliscaux@etu.minesparis.psl.eu, Nathan BLISCAUX           
+          Demo license for demonstration and instructional purposes only
+Processor information: 1 socket(s), 4 core(s), and 8 thread(s) available
+GAMS 41.2.0   Copyright (C) 1987-2022 GAMS Development. All rights reserved
+--- Starting compilation
+--- 4WT.gms(128) 3 Mb
+--- Starting execution: elapsed 0:00:00.035
+--- 4WT.gms(43) 4 Mb
+--- Generating MINLP model Planification
+--- 4WT.gms(128) 6 Mb
+---   889 rows  721 columns  2,009 non-zeroes
+---   1,585 nl-code  216 nl-non-zeroes
+---   72 discrete-columns
+--- Range statistics (absolute non-zero finite values)
+--- RHS       [min, max] : [ 6.700E-01, 3.000E+02] - Zero values observed as well
+--- Bound     [min, max] : [ 1.000E+00, 1.000E+00] - Zero values observed as well
+--- Matrix    [min, max] : [ 3.819E-04, 9.921E+01] - Zero values observed as well
+--- 4WT.gms(128) 4 Mb
+--- Executing DICOPT (Solvelink=2): elapsed 0:00:00.067
+-------------------------------------------------------------------------------
+Dicopt 2         41.2.0 5110e5ff Nov 14, 2022          WEI x86 64bit/MS Window
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+*** This solver runs with a demo license. No commercial use.
+--- DICOPT: Starting major iteration 1
+--- DICOPT: Setting up first (relaxed) NLP.
+
+CONOPT 3         41.2.0 5110e5ff Nov 14, 2022          WEI x86 64bit/MS Window
+
+--- *** This solver runs with a demo license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17N
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+      0   0        1.8070221200E+04 (Input point)
+ 
+                   Pre-triangular equations:   12
+                   Post-triangular equations:  149
+                   Definitional equations:     179
+ 
+      1   0        2.8598812000E+03 (After pre-processing)
+      2   0        8.1900193750E+01 (After scaling)
+      3   1   171  7.0361481250E+01 9.4E-02    28 1.0E+00    3 T  T
+      4   1   153  6.1417918750E+01 9.4E-02     8 1.0E+00    8 T  T
+      5   1   128  4.7498143750E+01 9.4E-02    13 1.0E+00   13 T  T
+      6   1   128  4.7475160059E+01 1.0E+00    40 8.8E-04   18 F  F
+      7   1   128  4.7270078124E+01 1.0E+00    57 2.2E-02    9 F  F
+     10   0   113  3.9934898688E+01               1.0E+00      F  T
+     15   0   116  3.9934898684E+01               0.0E+00      F  F
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+     20   0   120  3.9934898684E+01               0.0E+00      F  F
+     25   0   124  3.9934898675E+01               0.0E+00      F  F
+     31   1   109  3.8303222814E+01 6.2E-02    39 2.6E+01      F  F
+     35   1   101  2.1943842478E+01 2.5E-01    32 1.0E+00    3 T  T
+     36   1   101  2.1828926288E+01 1.0E+00    34 1.5E-01   15 F  F
+     37   1    93  2.1798180919E+01 1.0E+00    32 1.0E+00    6 T  T
+     38   1    86  2.1529927556E+01 9.9E-01    24 1.0E+00    7 T  T
+     39   1    86  2.1507125061E+01 9.7E-01    47 5.5E-03   12 F  F
+     40   1    86  2.1010711796E+01 2.0E+00    47 8.3E-01    6 F  F
+     41   1    86  2.1009899101E+01 3.5E+00    46 5.0E-05      F  F
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+     46   1    82  2.0812716388E+01 1.9E+00    42 4.0E-02      T  T
+     47   1    82  2.0577279089E+01 6.5E-01    41 1.7E-01    3 F  F
+     48   1    80  2.0393366921E+01 4.2E-01    41 1.0E+00    2 T  T
+     49   1    80  2.0210290128E+01 2.7E-01    39 1.0E+00    1 T  T
+     50   1    78  2.0092898563E+01 7.8E-01    40 1.0E+00    2 T  T
+     51   1    75  1.9956192226E+01 7.7E-01    40 1.0E+00    3 T  T
+     52   1    75  1.7894460406E+01 1.0E+00    38 6.6E-01    2 T  T
+     53   1    71  1.7627048199E+01 4.8E-01    45 1.0E+00    7 T  T
+     54   1    71  1.6858498523E+01 2.4E-01    38 9.1E-01    3 T  T
+     55   1    69  1.6763533886E+01 1.4E+00    40 1.0E+00    3 T  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+     56   1    69  1.6745391136E+01 2.1E-01    39 8.3E-01    4 F  F
+     57   1    69  1.6732473802E+01 3.6E-01    40 1.0E+00    3 T  T
+     58   1    69  1.6708893214E+01 1.1E-01    38 8.3E-01    1 F  F
+     59   1    69  1.6444571454E+01 6.3E-01    38 1.0E+00    1 T  T
+     60   1    67  1.6292987123E+01 6.9E-01    38 1.0E+00    3 T  T
+     61   1    67  1.6132764397E+01 6.0E-01    37 6.9E-01    3 F  T
+     62   1    67  1.6082019878E+01 5.6E-01    37 1.0E+00    1 T  T
+     63   1    65  1.6057705735E+01 3.5E-01    36 1.0E+00    2 T  T
+     64   1    65  1.5884422005E+01 5.0E-01    36 4.6E-01    2 F  T
+     65   1    65  1.5767646299E+01 6.8E-02    35 6.8E-01    2 F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+     66   1    65  1.5733760737E+01 4.4E-01    34 3.5E-01      F  T
+     71   1    60  1.5381785976E+01 1.4E+00    32 1.0E+00    3 T  T
+     72   1    60  1.5097349812E+01 1.0E+00    28 8.8E-01    3 T  T
+     73   1    60  1.5015448088E+01 5.1E-01    31 2.5E-01    3 F  T
+     74   1    60  1.5006572985E+01 8.4E-02    31 4.3E-01    2 F  T
+     76   1    60  1.4985284749E+01 1.0E-01    31 3.9E-01      F  T
+     81   1    57  1.4644774961E+01 1.3E-01    27 9.6E-01      F  T
+     86   1    55  1.3991070136E+01 3.3E-01    27 4.3E-01      T  T
+     90   1    54  1.3843534788E+01 4.0E-01    27 4.7E-01      F  T
+     91   1    54  1.3828500159E+01 2.3E-01    28 4.1E-01      F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+     92   2    53  1.3806746313E+01 1.7E-01    28 1.4E+00      T  T
+     96   2    53  1.3698126873E+01 4.3E-01    27 1.0E+00    4 T  T
+     97   2    52  1.3388742723E+01 1.4E-01    26 1.0E+00    8 T  T
+     98   2    51  1.3143852737E+01 1.9E-02    24 9.8E-01   13 T  T
+     99   2    51  1.3118411063E+01 1.7E-01    23 6.2E-01    6 F  T
+    100   2    51  1.3114287474E+01 6.2E-02    21 1.0E+00      F  T
+    101   2    51  1.3065491019E+01 6.1E-01    39 1.2E-01    8 T  T
+    102   1    51  1.3072630989E+01 6.7E-01    39 3.2E-04      F  T
+    103   1    51  1.3072615511E+01 1.8E-01    39 9.3E-04      F  T
+    104   2    51  1.3072575463E+01 1.1E-01    39 6.1E+00      F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    105   2    51  1.3068104715E+01 1.0E+00    39 9.2E-01    2 F  F
+    106   2    51  1.2939256197E+01 3.1E-02    37 6.8E-01    2 F  T
+    107   2    50  1.2846467922E+01 2.1E-01    35 1.0E+00    1 T  T
+    108   2    48  1.2286557240E+01 1.9E-01    34 1.0E+00    6 T  T
+    109   1    48  1.2256782557E+01 3.9E+00    34 1.2E-01      F  T
+    110   1    48  1.2226455533E+01 1.6E+00    33 3.2E-01      F  F
+    111   1    47  1.2217245602E+01 1.0E+00    33 1.1E-01      T  T
+    112   1    46  1.2071473935E+01 1.3E-01    32 2.2E+00      T  T
+    113   1    46  1.2023598715E+01 1.3E-01    32 9.5E-01      T  T
+    114   1    46  1.1997783564E+01 2.3E-01    32 3.7E-01      F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    115   1    46  1.1967871611E+01 1.4E-01    32 6.2E-01      F  T
+    116   2    45  1.1683210677E+01 2.1E-01    32 2.9E+00      T  T
+    121   2    44  1.1385547402E+01 2.9E+00    31 0.0E+00      T  T
+    122   1    43  1.1217570722E+01 2.9E+00    30 2.8E-02      T  T
+    123   1    43  1.1112113426E+01 1.2E+00    28 1.0E-01      F  T
+    124   1    43  1.1076635712E+01 2.6E-01    28 4.7E-01      F  T
+    125   2    42  1.0990205753E+01 1.8E-01    28 1.5E+00      T  T
+    126   1    42  1.0902975393E+01 2.5E-01    27 1.3E+00      F  T
+    131   2    40  1.0457373872E+01 2.5E-01    26 1.6E+00      T  T
+    136   2    40  9.6343675583E+00 9.9E-02    24 1.0E+00      F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    137   2    40  9.5490654882E+00 2.1E-01    25 1.1E-01    2 T  T
+    138   2    39  9.3068004681E+00 1.3E+00    24 1.0E+00    2 T  T
+    139   2    39  9.3067859595E+00 5.0E+00    23 1.3E-06    6 F  F
+    140   1    39  9.3067857521E+00 5.0E+00    21 0.0E+00      T  T
+    141   1    39  9.0546158833E+00 5.0E+00    20 1.0E-02      T  T
+    142   1    38  8.9829558041E+00 8.1E-01    19 1.5E-01      T  T
+    143   1    37  8.8614972234E+00 2.2E-01    18 1.6E+00      T  T
+    144   1    37  8.8273733676E+00 3.0E+00    18 4.0E-03      T  T
+    145   1    36  8.7300093394E+00 2.0E+00    22 1.6E-02      T  T
+    146   1    35  8.4325571321E+00 1.0E+00    22 1.0E+00    3 T  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    147   1    35  7.4956681190E+00 4.0E+00    21 5.0E-01    8 F  F
+    148   1    32  6.9997197484E+00 4.0E+00    19 1.0E+00    4 T  T
+    149   1    32  6.4062427135E+00 1.0E+00    22 8.3E-01    8 F  F
+    150   1    31  6.3206129857E+00 1.8E-01    23 1.0E+00    5 T  T
+    151   1    29  6.2663816187E+00 4.3E-01    20 1.0E+00    3 T  T
+    152   1    29  6.2075855895E+00 2.9E-01    19 1.0E+00    2 T  T
+    153   1    29  6.2046839015E+00 4.6E-02    41 1.6E-02    2 F  F
+    155   0    27  6.2015579804E+00               4.2E-01      T  T
+    160   0    28  6.1972215343E+00               0.0E+00      F  F
+    165   0    33  6.1972215343E+00               0.0E+00      F  F
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    170   0    38  6.1972215343E+00               0.0E+00      F  F
+    176   1    40  6.1973695664E+00 3.0E+00    46 0.0E+00      F  F
+    181   1    40  6.1973682089E+00 3.0E+00    84 0.0E+00      F  F
+    186   1    40  6.1973692703E+00 3.0E+00    88 0.0E+00      F  F
+    191   1    35  6.1973693394E+00 7.7E-01    85 0.0E+00      T  T
+    196   1    33  6.1973692991E+00 7.7E-01    74 1.8E-08      T  T
+    198   1    29  6.1972926637E+00 5.8E-01    83 1.0E+00    3 T  T
+    199   1    29  6.1972926637E+00 1.8E-01    77 0.0E+00    8 F  F
+    200   1    29  6.1972895994E+00 1.8E-01    75 2.6E-02    4 T  T
+    201   1    28  6.1972328613E+00 1.8E-01    74 8.2E-01    3 T  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    202   1    28  6.1971931826E+00 1.8E-01    73 1.0E+00    3 T  T
+    203   1    28  6.1971883889E+00 5.4E-02    71 3.5E-04    5 F  F
+    204   1    28  6.1938687863E+00 1.8E-01    70 2.7E-01    4 T  T
+    205   1    28  6.1869981071E+00 5.4E-02    69 1.0E+00    3 T  T
+    206   1    28  6.1864851651E+00 7.8E-02    71 2.2E-02    2 F  F
+    211   1    28  6.1866246122E+00 3.6E+00    69 1.4E-05      F  F
+    216   1    28  6.1861635252E+00 7.6E-02    76 0.0E+00      T  T
+    221   1    28  6.1665595567E+00 5.9E-02    73 9.9E-01      F  F
+    226   1    28  5.9104733629E+00 3.0E-01    70 7.2E-01    3 F  T
+    227   1    28  5.8627728197E+00 6.3E-02    70 4.5E-01    1 F  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    231   1    27  5.7551634198E+00 2.3E-01    70 4.7E-01      T  T
+    232   1    27  5.7032689177E+00 4.4E-02    69 6.1E-01    3 F  T
+    233   1    27  5.6721583523E+00 7.0E-02    69 4.5E-01    2 F  T
+    236   1    27  5.6214175282E+00 4.5E-02    68 5.9E+00      T  T
+    241   1    27  5.3828359044E+00 4.1E-02    64 1.0E+01      F  T
+    246   1    24  4.5321559358E+00 1.0E+00    62 4.6E-01      T  T
+    248   1    22  4.1877946833E+00 4.7E-02    72 1.0E+00    3 T  T
+    249   1    22  4.1005272092E+00 5.0E-02    69 5.7E-01    2 F  T
+    251   1    22  3.8707878731E+00 9.8E-02    68 3.8E-01      F  T
+    256   2    22  3.3644409774E+00 8.4E-02    66 1.5E+00      T  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    259   2    20  2.6743802353E+00 2.1E+00    65 1.0E+00    2 T  T
+    260   1    20  2.6743802353E+00 2.0E-01    65 0.0E+00      T  T
+    261   1    19  2.0496014047E+00 1.9E-01    62 1.3E+01      T  T
+    262   1    18  1.9381885968E+00 1.0E+00    62 1.1E-01      T  T
+    263   1    18  1.8666626811E+00 5.0E-01    63 3.2E-01      T  T
+    264   1    18  1.8109888565E+00 2.9E-01    63 4.6E-01    3 F  T
+    265   1    18  1.7768659599E+00 1.9E-01    63 4.6E-01    2 F  T
+    266   1    18  1.7540914077E+00 4.8E-01    63 1.2E-01      F  T
+    271   1    17  1.1158261860E+00 7.1E-02    61 1.2E+01      T  T
+    276   1    15  7.9049675028E-01 9.8E-02    58 1.4E+00      T  T
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+    279   1    13  6.2759367182E-01 1.7E+00    58 1.0E+00    3 T  T
+    280   1    13  4.6721319249E-01 2.3E-01    55 8.5E-01    8 T  T
+    281   1     4  3.5177074998E-01 1.0E+00    36 1.0E+00   10 T  T
+    282   1     4  2.8181646319E-01 1.9E-01    34 9.6E-01    6 T  T
+    283   1     3  1.2621534392E-01 2.2E-02    24 9.4E-01    6 T  T
+    284   1     3  2.1818275854E-02 1.0E+00     6 8.3E-01    5 F  F
+    285   1     1  1.7413942728E-05 1.0E+00    18 1.0E+00    2 T  T
+ 
+ ** Feasible solution. Value of objective =    7.21843261353
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+    286   3        7.1664948494E+00 5.8E-01    42 1.0E+00   10 T  T
+    287   3        7.0825682272E+00 1.5E-01    53 7.4E-01   16 T  T
+    288   3        7.0561311810E+00 1.5E-01    44 1.0E+00   12 T  T
+    289   3        6.9479817153E+00 9.9E-02    40 8.7E-01   13 T  T
+    290   3        6.9253779926E+00 4.7E-02    36 1.0E+00   12 T  T
+    291   3        6.8720218670E+00 6.8E-01    35 1.0E+00   13 T  T
+    292   3        6.7922696816E+00 1.4E-01    34 5.0E-01   18 F  F
+    293   3        6.7400189357E+00 2.7E-01    35 1.0E+00    6 T  T
+    294   3        6.7309948487E+00 8.6E-02    20 4.1E-01    9 F  T
+    295   3        6.7268235736E+00 3.0E-02    19 1.0E+00    4 T  T
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+    296   3        6.7262878358E+00 3.8E-03    17 2.3E-01    4 F  T
+    297   3        6.7261306300E+00 1.5E-03    21 4.2E-01    2 F  T
+    301   3        6.7241838029E+00 2.7E-03    18 2.1E+01      F  T
+    305   4        6.7232118580E+00 1.3E-03    30 1.0E+00    2 F  T
+    306   4        6.7222893414E+00 7.3E-04    30 1.0E+00    5 F  T
+    307   4        6.7219742058E+00 2.7E-03    30 1.0E+00    9 T  T
+    308   4        6.7211282697E+00 3.9E-04    31 7.9E-01   12 F  T
+    309   4        6.7210344267E+00 1.1E-03    30 1.0E+00    3 F  T
+    310   4        6.7210298262E+00 4.6E-04    31 1.0E+00    3 F  T
+    311   4        6.7210298244E+00 2.1E-06    31 1.0E+00    3 F  T
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+    312   4        6.7210298244E+00 1.9E-08    31
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+--- DICOPT: Setting up first MIP
+
+IBM ILOG CPLEX   41.2.0 5110e5ff Nov 14, 2022          WEI x86 64bit/MS Window
+
+--- *** This solver runs with a demo license. No commercial use.
+--- GMO setup time: 0.00s
+--- Space for names approximately 0.05 Mb
+--- Use option 'names no' to turn use of names off
+--- GMO memory 0.74 Mb (peak 0.74 Mb)
+--- Dictionary memory 0.00 Mb
+--- Cplex 22.1.0.0 link memory 0.03 Mb (peak 0.13 Mb)
+--- Starting Cplex
+
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+CPXPARAM_Advance                                 0
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               9999999999.8120003
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0
+Generic callback                                 0x50
+Tried aggregator 2 times.
+MIP Presolve eliminated 525 rows and 581 columns.
+Aggregator did 149 substitutions.
+Reduced MIP has 215 rows, 416 columns, and 752 nonzeros.
+Reduced MIP has 69 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (2.01 ticks)
+Found incumbent of value 2446.358593 after 0.00 sec. (2.71 ticks)
+Probing time = 0.00 sec. (0.04 ticks)
+Tried aggregator 1 time.
+Detecting symmetries...
+Reduced MIP has 215 rows, 416 columns, and 752 nonzeros.
+Reduced MIP has 69 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.68 ticks)
+Probing time = 0.00 sec. (0.04 ticks)
+MIP emphasis: balance optimality and feasibility.
+MIP search method: dynamic search.
+Parallel mode: none, using 1 thread.
+Tried aggregator 1 time.
+LP Presolve eliminated 69 rows and 101 columns.
+Reduced LP has 146 rows, 315 columns, and 582 nonzeros.
+Presolve time = 0.00 sec. (0.18 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             0.000000
+Iteration:    62   Dual objective     =             4.544559
+Iteration:   124   Dual objective     =             6.193667
+Iteration:   186   Dual objective     =             6.552978
+Initializing dual steep norms . . .
+Root relaxation solution time = 0.00 sec. (1.69 ticks)
+
+        Nodes                                         Cuts/
+   Node  Left     Objective  IInf  Best Integer    Best Bound    ItCnt     Gap
+
+*     0+    0                         2446.3586        0.0000           100.00%
+Found incumbent of value 2446.358593 after 0.00 sec. (5.43 ticks)
+      0     0        6.7210    27     2446.3586        6.7210      214   99.73%
+*     0+    0                            8.7187        6.7210            22.91%
+Found incumbent of value 8.718657 after 0.00 sec. (5.58 ticks)
+      0     0        7.3235    22        8.7187      Cuts: 43      289   16.00%
+      0     0        7.6397    20        8.7187      Cuts: 93      345   12.37%
+*     0+    0                            8.2805        7.6397             7.74%
+Found incumbent of value 8.280515 after 0.02 sec. (16.46 ticks)
+      0     0        7.7510    23        8.2805      Cuts: 63      400    6.39%
+*     0+    0                            8.1579        7.7510             4.99%
+Found incumbent of value 8.157883 after 0.03 sec. (19.86 ticks)
+      0     0        7.7938    20        8.1579      Cuts: 33      439    4.46%
+*     0+    0                            8.1204        7.7938             4.02%
+Found incumbent of value 8.120389 after 0.03 sec. (22.86 ticks)
+      0     0        7.8269    20        8.1204      Cuts: 22      469    3.61%
+      0     0        7.8419    18        8.1204      Cuts: 32      498    3.43%
+      0     0        7.8466    20        8.1204      Cuts: 18      509    3.37%
+*     0+    0                            8.0555        7.8466             2.59%
+Found incumbent of value 8.055486 after 0.05 sec. (31.84 ticks)
+      0     0        7.8471    18        8.0555   MIRcuts: 10      517    2.59%
+*     0+    0                            8.0431        7.8471             2.44%
+Found incumbent of value 8.043112 after 0.05 sec. (42.14 ticks)
+      0     2        7.8471    16        8.0431        7.8471      517    2.44%
+Elapsed time = 0.06 sec. (46.52 ticks, tree = 0.01 MB)
+*    10+   10                            8.0431        7.8471             2.44%
+Found incumbent of value 8.043112 after 0.06 sec. (50.22 ticks)
+*    80+   64                            8.0431        7.8471             2.44%
+Found incumbent of value 8.043112 after 0.08 sec. (79.37 ticks)
+*    90+   66                            7.9739        7.8471             1.59%
+Found incumbent of value 7.973904 after 0.09 sec. (82.84 ticks)
+*   190+  143                            7.9739        7.8471             1.59%
+Found incumbent of value 7.973904 after 0.13 sec. (124.17 ticks)
+    580   429        7.8551    13        7.9739        7.8471     4336    1.59%
+                                                   MIRcuts: 1                  
+    991   734        7.8471    16        7.9739        7.8471     6745    1.59%
+
+Performing restart 1
+
+Repeating presolve.
+Tried aggregator 2 times.
+MIP Presolve eliminated 4 rows and 4 columns.
+MIP Presolve modified 17 coefficients.
+Aggregator did 16 substitutions.
+Reduced MIP has 195 rows, 396 columns, and 705 nonzeros.
+Reduced MIP has 65 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.60 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 0 rows and 21 columns.
+MIP Presolve modified 1 coefficients.
+Reduced MIP has 195 rows, 375 columns, and 684 nonzeros.
+Reduced MIP has 65 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.67 ticks)
+Represolve time = 0.00 sec. (2.68 ticks)
+Tried aggregator 1 time.
+LP Presolve eliminated 45 rows and 75 columns.
+Reduced LP has 195 rows, 300 columns, and 907 nonzeros.
+Presolve time = 0.00 sec. (0.20 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             0.457666
+Iteration:    62   Dual objective     =             5.235250
+Iteration:   124   Dual objective     =             5.235250
+Perturbation started.
+Iteration:   153   Dual objective     =             5.235250
+Iteration:   215   Dual objective     =             7.766632
+Removing perturbation.
+Initializing dual steep norms . . .
+    993     0        7.8798    16        7.9739      Cuts: 57     7067    1.18%
+    993     0        7.8925    14        7.9739      Cuts: 57     7105    1.02%
+    993     0        7.8948    15        7.9739      Cuts: 32     7140    0.99%
+    993     0        7.9011    15        7.9739      Cuts: 29     7190    0.91%
+    993     0        7.9070    17        7.9739      Cuts: 55     7219    0.84%
+    993     0        7.9113    18        7.9739      Cuts: 31     7246    0.78%
+    993     0        7.9143    19        7.9739      Cuts: 22     7268    0.75%
+    993     0        7.9165    20        7.9739      Cuts: 55     7293    0.72%
+    993     0        7.9188    17        7.9739      Cuts: 27     7307    0.69%
+    993     0        7.9209    17        7.9739      Cuts: 16     7321    0.66%
+    993     0        7.9212    17        7.9739      Cuts: 27     7330    0.66%
+    993     0        7.9215    17        7.9739    MIRcuts: 8     7336    0.66%
+    993     0        7.9215    17        7.9739      Cuts: 11     7338    0.66%
+    993     0        7.9216    17        7.9739      Cuts: 11     7347    0.66%
+    993     0        7.9216    17        7.9739    MIRcuts: 4     7359    0.66%
+    993     2        7.9216    17        7.9739        7.9217     7359    0.66%
+   1233   182        7.9688     2        7.9739        7.9232     8536    0.64%
+   1539   420        7.9236    14        7.9739        7.9236     9873    0.63%
+   1935   713        7.9315    10        7.9739        7.9244    11773    0.62%
+   2311   972        7.9698     6        7.9739        7.9250    14000    0.61%
+   2833  1286        7.9473     8        7.9739        7.9257    16665    0.60%
+   3267  1595        7.9665     1        7.9739        7.9273    19009    0.58%
+   7763  4614        7.9398     7        7.9739        7.9297    38454    0.55%
+Elapsed time = 3.67 sec. (3258.27 ticks, tree = 1.49 MB)
+* 10893+ 6545                            7.9739        7.9305             0.54%
+Found incumbent of value 7.973904 after 4.22 sec. (3843.71 ticks)
+  10893  6547        7.9482     8        7.9739        7.9305    52112    0.54%
+  17500 10183        7.9545     1        7.9739        7.9326    80023    0.52%
+                                                      Cuts: 3                  
+
+Performing restart 2
+
+Repeating presolve.
+Tried aggregator 1 time.
+MIP Presolve modified 20 coefficients.
+Reduced MIP has 195 rows, 375 columns, and 684 nonzeros.
+Reduced MIP has 65 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.41 ticks)
+Tried aggregator 1 time.
+MIP Presolve eliminated 1 rows and 3 columns.
+Reduced MIP has 194 rows, 372 columns, and 678 nonzeros.
+Reduced MIP has 65 binaries, 0 generals, 0 SOSs, and 0 indicators.
+Presolve time = 0.00 sec. (0.61 ticks)
+Represolve time = 0.01 sec. (4.95 ticks)
+Tried aggregator 1 time.
+LP Presolve eliminated 18 rows and 30 columns.
+Reduced LP has 236 rows, 342 columns, and 1416 nonzeros.
+Presolve time = 0.00 sec. (0.22 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             0.477623
+Iteration:    67   Dual objective     =             5.105807
+Iteration:   133   Dual objective     =             5.150885
+Iteration:   195   Dual objective     =             5.925734
+Iteration:   257   Dual objective     =             7.053703
+Iteration:   319   Dual objective     =             7.671464
+Iteration:   381   Dual objective     =             7.858000
+Iteration:   443   Dual objective     =             7.919779
+Removing shift (2).
+Iteration:   458    Objective     =             7.921735
+Initializing dual steep norms . . .
+  21013     0        7.9216    18        7.9739      Cuts: 28    96188    0.50%
+  21013     0        7.9225    22        7.9739      Cuts: 19    96205    0.50%
+  21013     0        7.9225    19        7.9739      Cuts: 17    96217    0.50%
+  21013     0        7.9225    20        7.9739      Cuts: 17    96226    0.50%
+  21013     0        7.9225    20        7.9739      Cuts: 10    96260    0.50%
+  21013     0        7.9226    19        7.9739      Cuts: 14    96268    0.50%
+  21013     0        7.9226    18        7.9739       Cuts: 7    96270    0.50%
+  21013     0        7.9226    19        7.9739       Cuts: 9    96295    0.50%
+  21237   162        7.9544     3        7.9739        7.9340    97309    0.50%
+  23499  1772        7.9614     6        7.9739        7.9340   107307    0.50%
+  28726  5283        7.9386     8        7.9739        7.9350   129434    0.49%
+  35000  9546        cutoff              7.9739        7.9382   154527    0.45%
+  41062 13374        7.9691     3        7.9739        7.9398   180325    0.43%
+                                                      Cuts: 6                  
+  47200 17192        7.9561     4        7.9739        7.9404   207781    0.42%
+                                                   MIRcuts: 5                  
+* 52572 20672      integral     0        7.9739        7.9413   231292    0.41%
+Found incumbent of value 7.973904 after 11.72 sec. (12075.93 ticks)
+  53754 21404        7.9576     1        7.9739        7.9415   236365    0.41%
+* 54963 22149      integral     0        7.9739        7.9417   241336    0.40%
+Found incumbent of value 7.973904 after 12.05 sec. (12443.47 ticks)
+  60558 25560        7.9545     3        7.9739        7.9424   266224    0.39%
+Elapsed time = 12.72 sec. (13232.26 ticks, tree = 7.90 MB)
+  66357 28736        7.9686     1        7.9739        7.9428   293831    0.39%
+                                                   MIRcuts: 3                  
+  72886 32735        7.9698     2        7.9739        7.9437   321840    0.38%
+                                                  LiftProj: 1                  
+  79543 36706        7.9651     3        7.9739        7.9447   351255    0.37%
+  86074 40890        7.9698     2        7.9739        7.9455   382096    0.36%
+  93019 45183        7.9576     2        7.9739        7.9463   412282    0.35%
+  99742 49250        7.9669     6        7.9739        7.9474   442521    0.33%
+ 106134 53260        7.9695     2        7.9739        7.9481   469873    0.32%
+ 112994 57511        7.9658     3        7.9739        7.9487   499741    0.32%
+ 119681 61909        7.9695     2        7.9739        7.9495   528945    0.31%
+ 126468 66146        7.9674     2        7.9739        7.9500   559777    0.30%
+Elapsed time = 20.88 sec. (22770.51 ticks, tree = 22.55 MB)
+ 133171 70342        7.9659     3        7.9739        7.9504   589823    0.29%
+ 140201 74922        7.9689     3        7.9739        7.9511   620450    0.29%
+ 145773 78437        7.9664     4        7.9739        7.9515   646047    0.28%
+                                                   MIRcuts: 5                  
+ 151413 81494        7.9576     1        7.9739        7.9517   672226    0.28%
+ 157590 85227        7.9674     1        7.9739        7.9520   700383    0.27%
+ 163818 89258        7.9549     2        7.9739        7.9522   728630    0.27%
+                                                   MIRcuts: 1                  
+ 169626 93045        7.9637     1        7.9739        7.9524   756652    0.27%
+ 175944 97111        7.9637     1        7.9739        7.9525   786465    0.27%
+ 182263 101117        7.9659     1        7.9739        7.9526   815542    0.27%
+ 188186 104339        7.9683     2        7.9739        7.9529   842525    0.26%
+                                                   MIRcuts: 4                  
+Elapsed time = 29.23 sec. (32308.71 ticks, tree = 32.38 MB)
+*191449 106170      integral     0        7.9739        7.9530   857290    0.26%
+Found incumbent of value 7.973904 after 29.67 sec. (32820.58 ticks)
+ 197558 108419        7.9643     1        7.9739        7.9530   884671    0.26%
+ 204295 110379        7.9530     5        7.9739        7.9530   918499    0.26%
+ 210673 111965        7.9555     2        7.9739        7.9530   953896    0.26%
+ 216909 113379        7.9643     1        7.9739        7.9530   986227    0.26%
+ 224417 117307        cutoff              7.9739        7.9533  1018369    0.26%
+ 230741 117957        cutoff              7.9739        7.9533  1060560    0.26%
+ 236913 121658        7.9545     4        7.9739        7.9534  1085488    0.26%
+ 240643 123887        7.9545     1        7.9739        7.9534  1100118    0.26%
+ 245813 126952        7.9583     1        7.9739        7.9536  1121400    0.25%
+Elapsed time = 37.09 sec. (41411.10 ticks, tree = 38.30 MB)
+ 252183 129717        cutoff              7.9739        7.9540  1149847    0.25%
+ 258082 132995        7.9545     2        7.9739        7.9541  1174179    0.25%
+ 264705 136249        7.9693     3        7.9739        7.9543  1201483    0.25%
+ 272204 138084        7.9545     1        7.9739        7.9545  1230150    0.24%
+ 279714 138054        7.9545     2        7.9739        7.9545  1258092    0.24%
+                                                    Covers: 1                  
+ 287241 138053        7.9545     1        7.9739        7.9545  1284233    0.24%
+                                                    Covers: 2                  
+ 294274 138300        7.9545     1        7.9739        7.9545  1314443    0.24%
+                                                      Cuts: 2                  
+ 301260 138398        7.9545     2        7.9739        7.9545  1344201    0.24%
+ 308613 138461        7.9545     1        7.9739        7.9545  1372086    0.24%
+ 315917 138519        7.9545     1        7.9739        7.9545  1401006    0.24%
+Elapsed time = 45.13 sec. (50949.12 ticks, tree = 44.30 MB)
+ 323519 138629        7.9545     1        7.9739        7.9545  1426207    0.24%
+                                                   MIRcuts: 1                  
+ 330934 138648        7.9545     1        7.9739        7.9545  1449081    0.24%
+ 338520 138665        cutoff              7.9739        7.9545  1472365    0.24%
+ 345788 138757        cutoff              7.9739        7.9545  1498038    0.24%
+ 351717 138900        cutoff              7.9739        7.9545  1526251    0.24%
+ 357436 139009        7.9545     1        7.9739        7.9545  1554148    0.24%
+ 363096 139105        cutoff              7.9739        7.9545  1581954    0.24%
+ 369013 139115        7.9545     1        7.9739        7.9545  1609198    0.24%
+ 374928 139164        cutoff              7.9739        7.9545  1636946    0.24%
+ 380916 139192        cutoff              7.9739        7.9545  1665394    0.24%
+Elapsed time = 53.11 sec. (60487.12 ticks, tree = 44.47 MB)
+ 386496 139296        cutoff              7.9739        7.9545  1694123    0.24%
+ 392386 139292        cutoff              7.9739        7.9545  1720833    0.24%
+ 398963 139310        7.9545     1        7.9739        7.9545  1751206    0.24%
+ 405260 139310        7.9545     3        7.9739        7.9545  1779187    0.24%
+ 411931 139460        7.9545     1        7.9739        7.9545  1811322    0.24%
+ 419255 139651        cutoff              7.9739        7.9545  1835753    0.24%
+ 426474 139774        7.9545     2        7.9739        7.9545  1859288    0.24%
+ 433868 140086        cutoff              7.9739        7.9545  1883096    0.24%
+ 441273 140387        cutoff              7.9739        7.9545  1906145    0.24%
+ 448530 140492        7.9545     1        7.9739        7.9545  1930321    0.24%
+Elapsed time = 61.13 sec. (70024.61 ticks, tree = 44.81 MB)
+ 455745 140658        7.9545     1        7.9739        7.9545  1954199    0.24%
+ 462929 140788        7.9545     1        7.9739        7.9545  1979101    0.24%
+ 470263 140991        7.9663     1        7.9739        7.9545  2002776    0.24%
+ 477480 141115        7.9545     1        7.9739        7.9545  2026422    0.24%
+ 482895 141588        7.9545     1        7.9739        7.9545  2052764    0.24%
+ 488171 141839        cutoff              7.9739        7.9545  2077496    0.24%
+ 493569 141913        7.9545     1        7.9739        7.9545  2104872    0.24%
+ 498648 142079        7.9545     1        7.9739        7.9545  2133189    0.24%
+ 503963 142063        cutoff              7.9739        7.9545  2159904    0.24%
+ 509095 142190        cutoff              7.9739        7.9545  2187149    0.24%
+Elapsed time = 69.14 sec. (79562.22 ticks, tree = 45.26 MB)
+ 514613 142411        7.9545     1        7.9739        7.9545  2216231    0.24%
+ 519988 142544        7.9545     1        7.9739        7.9545  2243326    0.24%
+ 524864 142579        cutoff              7.9739        7.9545  2270034    0.24%
+ 530270 142732        7.9545     1        7.9739        7.9545  2296960    0.24%
+ 535724 142772        cutoff              7.9739        7.9545  2323351    0.24%
+ 541148 142730        7.9545     2        7.9739        7.9545  2349145    0.24%
+ 546172 142753        7.9545     1        7.9739        7.9545  2375848    0.24%
+ 551613 142779        7.9545     1        7.9739        7.9545  2402034    0.24%
+ 557006 143048        7.9545     1        7.9739        7.9545  2429007    0.24%
+ 578952 143395        cutoff              7.9739        7.9545  2533897    0.24%
+Elapsed time = 79.97 sec. (92004.25 ticks, tree = 45.57 MB)
+ 600331 143607        cutoff              7.9739        7.9545  2635399    0.24%
+ 624134 144098        7.9545     3        7.9739        7.9545  2743395    0.24%
+ 649718 144498        cutoff              7.9739        7.9545  2847929    0.24%
+ 671376 144679    infeasible              7.9739        7.9545  2953859    0.24%
+ 693393 144772        cutoff              7.9739        7.9545  3055661    0.24%
+ 719287 145359        cutoff              7.9739        7.9545  3167255    0.24%
+ 743662 145761        cutoff              7.9739        7.9545  3273218    0.24%
+ 772026 146222        cutoff              7.9739        7.9545  3372990    0.24%
+ 799992 146738        cutoff              7.9739        7.9545  3475742    0.24%
+ 828146 147029        7.9545     1        7.9739        7.9545  3575487    0.24%
+Elapsed time = 114.17 sec. (130152.28 ticks, tree = 46.53 MB)
+ 856152 147565        7.9568     1        7.9739        7.9545  3677695    0.24%
+ 884483 147939        cutoff              7.9739        7.9545  3781908    0.24%
+ 909358 148259        7.9545     1        7.9739        7.9545  3887738    0.24%
+ 931293 148474        7.9568     1        7.9739        7.9545  3981657    0.24%
+ 959200 149143        7.9545     1        7.9739        7.9545  4083261    0.24%
+ 987561 149440        7.9663     1        7.9739        7.9545  4181157    0.24%
+ 1016193 149826        cutoff              7.9739        7.9545  4280012    0.24%
+ 1044022 150121        cutoff              7.9739        7.9545  4383511    0.24%
+ 1072337 150444        7.9545     1        7.9739        7.9545  4483570    0.24%
+ 1100313 150794        7.9545     2        7.9739        7.9545  4584397    0.24%
+Elapsed time = 146.72 sec. (168316.85 ticks, tree = 47.51 MB)
+ 1128030 151231        cutoff              7.9739        7.9545  4687044    0.24%
+ 1155703 151687        7.9545     1        7.9739        7.9545  4791721    0.24%
+ 1179693 152248        7.9545     1        7.9739        7.9545  4891194    0.24%
+ 1200951 152412        cutoff              7.9739        7.9545  4989215    0.24%
+ 1221678 152461        7.9545     2        7.9739        7.9545  5084804    0.24%
+ 1242925 152604        7.9545     1        7.9739        7.9545  5176117    0.24%
+ 1263751 152718        cutoff              7.9739        7.9545  5267534    0.24%
+ 1284934 153055        7.9545     1        7.9739        7.9545  5358400    0.24%
+ 1304434 153265        cutoff              7.9739        7.9545  5451693    0.24%
+ 1324942 153544        cutoff              7.9739        7.9545  5542465    0.24%
+Elapsed time = 179.39 sec. (206465.20 ticks, tree = 48.23 MB)
+ 1345864 153854        cutoff              7.9739        7.9545  5632095    0.24%
+ 1368231 154175        7.9545     3        7.9739        7.9545  5720400    0.24%
+                                                   MIRcuts: 1                  
+ 1393953 154670        7.9545     1        7.9739        7.9545  5814644    0.24%
+                                                      Cuts: 2                  
+ 1417633 155291        7.9545     1        7.9739        7.9545  5912529    0.24%
+ 1441733 155646        7.9545     1        7.9739        7.9545  6006173    0.24%
+ 1465113 155901        7.9545     1        7.9739        7.9545  6104303    0.24%
+ 1488837 156273        cutoff              7.9739        7.9545  6204267    0.24%
+ 1511364 156745        cutoff              7.9739        7.9545  6307048    0.24%
+ 1535051 157274        cutoff              7.9739        7.9545  6403779    0.24%
+ 1558690 157608        7.9545     1        7.9739        7.9545  6500787    0.24%
+Elapsed time = 211.70 sec. (244623.69 ticks, tree = 51.00 MB)
+ 1582493 157978        7.9545     1        7.9739        7.9545  6596398    0.24%
+ 1606102 158435        7.9545     1        7.9739        7.9545  6697651    0.24%
+ 1630470 158730        cutoff              7.9739        7.9545  6797118    0.24%
+ 1654384 159138        7.9545     2        7.9739        7.9545  6898624    0.24%
+ 1677465 159723        7.9545     1        7.9739        7.9545  6998236    0.24%
+ 1702313 159955        7.9545     1        7.9739        7.9545  7096678    0.24%
+ 1727265 160216        cutoff              7.9739        7.9545  7200212    0.24%
+ 1749788 160536        7.9545     1        7.9739        7.9545  7299950    0.24%
+ 1773285 160779        cutoff              7.9739        7.9545  7397768    0.24%
+ 1794100 161030        7.9545     1        7.9739        7.9545  7499055    0.24%
+Elapsed time = 244.06 sec. (282784.47 ticks, tree = 51.90 MB)
+ 1814545 161249        cutoff              7.9739        7.9545  7602525    0.24%
+ 1835664 161613        cutoff              7.9739        7.9545  7703848    0.24%
+ 1858050 161941        7.9545     2        7.9739        7.9545  7800195    0.24%
+ 1879170 162224        cutoff              7.9739        7.9545  7899185    0.24%
+ 1900512 162542        cutoff              7.9739        7.9545  8001680    0.24%
+ 1921082 162661        7.9568     1        7.9739        7.9545  8106334    0.24%
+ 1942266 162975        cutoff              7.9739        7.9545  8203589    0.24%
+ 1964159 163164        7.9545     2        7.9739        7.9545  8297008    0.24%
+ 1987013 163931        7.9545     1        7.9739        7.9545  8395376    0.24%
+ 2010353 164654        7.9545     1        7.9739        7.9545  8494119    0.24%
+Elapsed time = 276.63 sec. (320933.03 ticks, tree = 52.85 MB)
+ 2034419 164549        7.9545     1        7.9739        7.9545  8586848    0.24%
+ 2056717 164804        7.9545     1        7.9739        7.9545  8684646    0.24%
+ 2081017 164652        7.9545     1        7.9739        7.9545  8780964    0.24%
+ 2104493 164784        cutoff              7.9739        7.9545  8878411    0.24%
+ 2130371 164910        cutoff              7.9739        7.9545  8974762    0.24%
+ 2154217 165114        7.9545     2        7.9739        7.9545  9067132    0.24%
+ 2176033 165180        7.9545     3        7.9739        7.9545  9159463    0.24%
+ 2198596 165482        7.9545     1        7.9739        7.9545  9249096    0.24%
+ 2222984 165712        7.9545     1        7.9739        7.9545  9345191    0.24%
+ 2247181 165979        cutoff              7.9739        7.9545  9443441    0.24%
+Elapsed time = 309.45 sec. (359080.60 ticks, tree = 53.19 MB)
+ 2270623 166305        7.9545     1        7.9739        7.9545  9536843    0.24%
+ 2294413 166611        cutoff              7.9739        7.9545  9630634    0.24%
+ 2319200 166878        7.9545     1        7.9739        7.9545  9728688    0.24%
+ 2344349 167167        cutoff              7.9739        7.9545  9826460    0.24%
+ 2366113 167404        7.9545     1        7.9739        7.9545  9917126    0.24%
+ 2391313 167692        cutoff              7.9739        7.9545 10017331    0.24%
+ 2412343 168122        7.9545     1        7.9739        7.9545 10108268    0.24%
+ 2434530 168386        7.9545     2        7.9739        7.9545 10206011    0.24%
+ 2456891 168804        cutoff              7.9739        7.9545 10298602    0.24%
+ 2479219 169038        cutoff              7.9739        7.9545 10396480    0.24%
+Elapsed time = 342.00 sec. (397257.03 ticks, tree = 53.99 MB)
+ 2501813 169119        cutoff              7.9739        7.9545 10489497    0.24%
+ 2523971 169271        cutoff              7.9739        7.9545 10583393    0.24%
+ 2546277 169369        cutoff              7.9739        7.9545 10675377    0.24%
+ 2568932 169575        7.9545     1        7.9739        7.9545 10770316    0.24%
+ 2587762 169743        7.9545     1        7.9739        7.9545 10857089    0.24%
+ 2611051 170103        7.9545     1        7.9739        7.9545 10955927    0.24%
+ 2633623 170314        7.9545     1        7.9739        7.9545 11048915    0.24%
+ 2655849 170878        7.9545     1        7.9739        7.9545 11145977    0.24%
+ 2682262 171072        7.9737     1        7.9739        7.9545 11245955    0.24%
+ 2708245 171283        7.9545     1        7.9739        7.9545 11350024    0.24%
+Elapsed time = 375.22 sec. (435405.12 ticks, tree = 54.58 MB)
+ 2733690 171247        cutoff              7.9739        7.9545 11448691    0.24%
+ 2759435 171532        7.9545     1        7.9739        7.9545 11550834    0.24%
+ 2784315 171851        7.9545     1        7.9739        7.9545 11653152    0.24%
+ 2810868 172198        7.9545     1        7.9739        7.9545 11757416    0.24%
+ 2837374 172369        7.9545     1        7.9739        7.9545 11863835    0.24%
+ 2861077 172504        7.9545     1        7.9739        7.9545 11969682    0.24%
+ 2883064 173250        7.9545     1        7.9739        7.9545 12070170    0.24%
+ 2904646 173117        7.9545     2        7.9739        7.9545 12171316    0.24%
+ 2925869 173301        cutoff              7.9739        7.9545 12272161    0.24%
+ 2948031 173313        cutoff              7.9739        7.9545 12369555    0.24%
+Elapsed time = 409.11 sec. (473553.49 ticks, tree = 55.11 MB)
+ 2969997 173667        cutoff              7.9739        7.9545 12471098    0.24%
+ 2993427 174340        7.9545     1        7.9739        7.9545 12576595    0.24%
+ 3017077 174232        cutoff              7.9739        7.9545 12676349    0.24%
+ 3041797 174537        7.9545     1        7.9739        7.9545 12782238    0.24%
+ 3064144 174608        7.9545     1        7.9739        7.9545 12890963    0.24%
+ 3086559 174779        cutoff              7.9739        7.9545 12989428    0.24%
+ 3111560 175014        cutoff              7.9739        7.9545 13088861    0.24%
+ 3134425 175672        cutoff              7.9739        7.9545 13192191    0.24%
+ 3159522 175808        cutoff              7.9739        7.9545 13294914    0.24%
+ 3186010 176112        cutoff              7.9739        7.9545 13405059    0.24%
+Elapsed time = 441.72 sec. (511701.11 ticks, tree = 55.84 MB)
+ 3210710 176292        7.9643     1        7.9739        7.9545 13515556    0.24%
+ 3232513 177615        7.9545     1        7.9739        7.9545 13613350    0.24%
+ 3252613 177501        7.9545     1        7.9739        7.9545 13707888    0.24%
+ 3271908 177656        7.9545     1        7.9739        7.9545 13810087    0.24%
+ 3293084 177771        7.9545     1        7.9739        7.9545 13900975    0.24%
+ 3315153 177835        7.9545     1        7.9739        7.9545 13993088    0.24%
+ 3337318 178000        cutoff              7.9739        7.9545 14090253    0.24%
+ 3358544 178312        cutoff              7.9739        7.9545 14188924    0.24%
+ 3379990 178393        7.9545     3        7.9739        7.9545 14284496    0.24%
+ 3401850 178733        7.9545     1        7.9739        7.9545 14381169    0.24%
+Elapsed time = 474.23 sec. (549854.63 ticks, tree = 56.52 MB)
+ 3423546 179138        7.9545     1        7.9739        7.9545 14481679    0.24%
+ 3445263 179349        cutoff              7.9739        7.9545 14579105    0.24%
+ 3466713 179528        7.9545     2        7.9739        7.9545 14674072    0.24%
+ 3487347 179670        cutoff              7.9739        7.9545 14769798    0.24%
+ 3512403 179985        7.9545     1        7.9739        7.9545 14884447    0.24%
+ 3537482 180428        cutoff              7.9739        7.9545 14992993    0.24%
+ 3562475 180081        7.9545     1        7.9739        7.9545 15100053    0.24%
+ 3585318 180296        cutoff              7.9739        7.9545 15199886    0.24%
+ 3609182 180476        7.9545     1        7.9739        7.9545 15301318    0.24%
+ 3635159 180980        7.9545     1        7.9739        7.9545 15411106    0.24%
+Elapsed time = 506.81 sec. (588002.39 ticks, tree = 57.10 MB)
+ 3659070 181252        7.9545     3        7.9739        7.9545 15512797    0.24%
+ 3683290 181416        7.9545     1        7.9739        7.9545 15612350    0.24%
+ 3707461 181722        7.9545     1        7.9739        7.9545 15717697    0.24%
+ 3732907 181880        7.9545     2        7.9739        7.9545 15820170    0.24%
+ 3757253 182229        7.9545     1        7.9739        7.9545 15918411    0.24%
+ 3777525 182058        cutoff              7.9739        7.9545 16008794    0.24%
+ 3798745 182070        7.9545     1        7.9739        7.9545 16108769    0.24%
+ 3818218 182107        7.9545     1        7.9739        7.9545 16203355    0.24%
+ 3842213 182490        7.9545     1        7.9739        7.9545 16306105    0.24%
+ 3868486 182493        7.9568     1        7.9739        7.9545 16418609    0.24%
+Elapsed time = 539.47 sec. (626150.83 ticks, tree = 57.50 MB)
+ 3890362 182807        7.9545     1        7.9739        7.9545 16509717    0.24%
+ 3911173 183144        7.9545     1        7.9739        7.9545 16593274    0.24%
+ 3931635 183292        cutoff              7.9739        7.9545 16687589    0.24%
+ 3951813 183535        7.9545     1        7.9739        7.9545 16778810    0.24%
+ 3975832 184273        cutoff              7.9739        7.9545 16880479    0.24%
+ 4000320 184507        7.9545     2        7.9739        7.9545 16986887    0.24%
+ 4023103 184825        7.9545     1        7.9739        7.9545 17090631    0.24%
+ 4048624 185260        cutoff              7.9739        7.9545 17199753    0.24%
+ 4073622 185508        7.9545     2        7.9739        7.9545 17305034    0.24%
+ 4101469 185976        7.9545     1        7.9739        7.9545 17412594    0.24%
+Elapsed time = 571.89 sec. (664299.10 ticks, tree = 58.41 MB)
+ 4128693 186338        cutoff              7.9739        7.9545 17523291    0.24%
+ 4155407 186965        7.9545     2        7.9739        7.9545 17636474    0.24%
+ 4178723 189821        cutoff              7.9739        7.9545 17733534    0.24%
+ 4201443 191296        cutoff              7.9739        7.9545 17827881    0.24%
+ 4224968 193605        7.9545     1        7.9739        7.9545 17924824    0.24%
+ 4248013 195461        7.9545     1        7.9739        7.9545 18021196    0.24%
+ 4270814 197121        7.9545     1        7.9739        7.9545 18126439    0.24%
+ 4293364 198628        cutoff              7.9739        7.9545 18224066    0.24%
+ 4316652 200254        7.9545     1        7.9739        7.9545 18320376    0.24%
+ 4339432 201997        cutoff              7.9739        7.9545 18416692    0.24%
+Elapsed time = 604.47 sec. (702454.76 ticks, tree = 64.62 MB)
+ 4362015 203839        7.9545     1        7.9739        7.9545 18515831    0.24%
+ 4385206 205331        7.9545     1        7.9739        7.9545 18609166    0.24%
+ 4407925 206386        cutoff              7.9739        7.9545 18708275    0.24%
+ 4430650 208011    infeasible              7.9739        7.9545 18805120    0.24%
+ 4453990 211068        cutoff              7.9739        7.9545 18900841    0.24%
+ 4477235 213066        cutoff              7.9739        7.9545 18993288    0.24%
+ 4500213 213911        7.9545     1        7.9739        7.9545 19092507    0.24%
+ 4524148 215568        cutoff              7.9739        7.9545 19185874    0.24%
+ 4547657 216722        7.9545     2        7.9739        7.9545 19281437    0.24%
+ 4570092 217785        7.9545     2        7.9739        7.9545 19377212    0.24%
+Elapsed time = 637.27 sec. (740630.13 ticks, tree = 68.75 MB)
+ 4592181 219513        cutoff              7.9739        7.9545 19474317    0.24%
+
+Cover cuts applied:  6
+Mixed integer rounding cuts applied:  34
+Lift and project cuts applied:  21
+Gomory fractional cuts applied:  12
+
+Root node processing (before b&c):
+  Real time             =    0.06 sec. (46.52 ticks)
+Sequential b&c:
+  Real time             =  640.80 sec. (748395.51 ticks)
+                          ------------
+Total (root+branch&cut) =  640.86 sec. (748442.03 ticks)
+
+--- MIP status (113): aborted.
+--- Cplex Time: 640.86sec (det. 748442.03 ticks)
+
+--- Fixing integer variables and solving final LP...
+
+Version identifier: 22.1.0.0 | 2022-03-09 | 1a383f8ce
+CPXPARAM_Advance                                 2
+CPXPARAM_Threads                                 1
+CPXPARAM_MIP_Display                             4
+CPXPARAM_MIP_Pool_Capacity                       0
+CPXPARAM_TimeLimit                               9999999999.8120003
+CPXPARAM_MIP_Tolerances_AbsMIPGap                0
+CPXPARAM_MIP_Tolerances_MIPGap                   0
+Tried aggregator 1 time.
+LP Presolve eliminated 684 rows and 825 columns.
+Aggregator did 106 substitutions.
+Reduced LP has 99 rows, 223 columns, and 403 nonzeros.
+Presolve time = 0.00 sec. (0.81 ticks)
+Initializing dual steep norms . . .
+
+Iteration log . . .
+Iteration:     1   Dual objective     =             3.007611
+Iteration:    62   Dual objective     =             7.673171
+
+--- Fixed MIP status (1): optimal.
+--- Cplex Time: 0.00sec (det. 1.71 ticks)
+
+
+Problem aborted
+MIP Solution:            7.973904    (1.94814e+07 iterations, 4.59365e+06 nodes)
+Final Solve:             7.973904    (102 iterations)
+
+Best possible:           7.954489
+Absolute gap:            0.019415
+Relative gap:            0.002435
+
+--- DICOPT: Starting major iteration 2
+--- DICOPT: Log File:
+ Major Major     Objective    CPU time  Itera- Evaluation Solver
+ Step  Iter       Function     (Sec)    tions   Errors
+  NLP    1         6.72103      0.19      312      0      conopt
+  MIP    1       *UserInt*    640.86   19481415      0      cplex
+--- DICOPT: Terminating...
+--- DICOPT: Stopped on user interrupt
+
+      The search was stopped because a user interrupt
+      was received.
+
+--- DICOPT: No integer solution
+
+      No integer solution was found. The relaxed NLP solution
+      will be reported.
+
+--- Reading solution for model Planification
+*** Status: Normal completion
+--- Job 4WT.gms Stop 12/09/22 17:40:49 elapsed 0:10:41.281
+Cannot delete directory: 225a

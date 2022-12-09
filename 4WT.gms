@@ -14,7 +14,8 @@ Sets
 
      alias (n,np)
      alias (k,kp)
-     alias (d,dp);
+     alias (d,dp)
+     alias (t,tp);
 
 Scalar
      height0      reference height at the source (m)     / 0 /
@@ -66,3 +67,62 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j2.r2      0.00223839      0.00851091
      j2.r3      0.00134303      0.00510655;
       
+Positive Variable
+    qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+    qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+    qlt(n,n,t)  débit en pipe l au temps t 
+    vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+    pkt(c,d,t) Puissance de la pompe k à la période t
+    charge(n,t) Charge à chaque noeud j à la période t
+*    charge_r(r,t) Charge à chaque réservoir r à la période t;
+
+Binary Variable
+    xkt(c,d,t) Pompe k allumé à la période t, sinon 0 ;
+     
+free variable
+    z Coût total ;
+
+
+
+Equations
+    cost    definition de la fonction objective
+    flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
+    flow_r(t,n)   conservation du flow à chaque temps t
+    flow_j(t,n)   conservation du flow à chaque temps t
+    volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+    volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+    volume_init(r)  volumes init pour chaque réservoir r
+    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+*    debits_pipeJ_max(n,n,t) débit max pour chaque pipe à chaque temps t
+*    debits_pipeS_max(n,n,t) débit max pour chaque pipe à chaque temps t
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+*    pression_j(n,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j
+*    pression_r(r,t)   pressions en chaque réservoir supérieur à l_élévation du niveau d_eau
+    gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
+    perte_de_charge (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds;
+*    charge_j(n,n,t)   charge en j égale charge en j-1 moins la perte de charge des canalisations pour tout t;
+    
+cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
+debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
+*debits_pipeJ_max(l(j,n),t) .. qlt(l,t) =l= (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2')) ;
+*debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
+puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
+demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+*pression_j(j,t) .. charge(j,t) =g= height(j);
+*pression_r(r,t) .. charge(r,t) =g= height(r) + vrt(r,t) / surface(r); 
+gain_de_charge(k(c,d),t) .. charge('s',t) =e= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
+perte_de_charge(l(n,np),t) .. charge(n,t) -charge(np,t) + height(n) - height(np) =e= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+*charge_j(l(n,np),t) .. charge(np,t) =e= charge(n,t) - (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
+
+Model Planification /all/;
+
+Solve Planification using minlp minimizing z ;
