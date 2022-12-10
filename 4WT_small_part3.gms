@@ -139,9 +139,9 @@ demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
 demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
 *pression_j(j,t) .. charge(j,t) =g= height(j);
 *pression_r(r,t) .. charge(r,t) =g= height(r) + vrt(r,t) / surface(r); 
-gain_de_charge(k(c,d),t) .. charge('s',t) =e= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
-perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =e= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
-perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r)+ vrt(r,t) / surface(r)=e= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
+perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r)+ vrt(r,t) / surface(r)=g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
 *charge_j(l(n,np),t) .. charge(np,t) =e= charge(n,t) - (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
 
 Model Planification /all/;
