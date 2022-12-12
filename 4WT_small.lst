@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 14:39:57 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:43:40 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -99,29 +99,29 @@ C o m p i l a t i o n
   97  free variable
   98      z Coût total ;
   99   
- 100   
- 101   
- 102  Equations
- 103      cost    definition de la fonction objective
- 104      flow(t)   conservation du flow à chaque temps t
- 105      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
- 106      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
- 107      volume_init(r)  volumes init pour chaque réservoir r
- 108      debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
- 109      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
- 110      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
- 111      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank);
+ 100  Equations
+ 101      cost    definition de la fonction objective
+ 102      flow(t)   conservation du flow à chaque temps t
+ 103      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+ 104      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+ 105      demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+ 106      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+ 107      debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 108      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 109      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+ 110   
+ 111   
  112   
- 113   
- 114  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
- 115  flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
- 116  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
- 117  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
- 118  volume_init(r) .. vrt(r,'t1') =e=  vinit(r);
+ 113  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 114  flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+ 115  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 116  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 117  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+ 118  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
  119  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
  120  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
  121  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
- 122  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 122   
  123   
  124  Model Planification /all/;
  125   
@@ -132,7 +132,7 @@ C o m p i l a t i o n
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 14:39:57 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:43:40 Page 2
 Pump scheduling smallest
 Equation Listing    SOLVE Planification Using MIP From line 126
 
@@ -180,15 +180,26 @@ volumes_max(r1,t3)..  vrt(r1,t3) =L= 300 ; (LHS = 0)
 REMAINING 33 ENTRIES SKIPPED
 
 
----- volume_init  =E=  volumes init pour chaque réservoir r
+---- demandes_t1  =E=  demandes pour t1 et pour chaque réservoir r
 
-volume_init(r1)..  vrt(r1,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+demandes_t1(r1)..  qrt(r1,t1) - vrt(r1,t1) =E= -90.17 ; (LHS = 0, INFES = 90.17 ****)
      
-volume_init(r2)..  vrt(r2,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+demandes_t1(r2)..  qrt(r2,t1) - vrt(r2,t1) =E= -55.17 ; (LHS = 0, INFES = 55.17 ****)
      
-volume_init(r3)..  vrt(r3,t1) =E= 100 ; (LHS = 0, INFES = 100 ****)
+demandes_t1(r3)..  qrt(r3,t1) - vrt(r3,t1) =E= -86 ; (LHS = 0, INFES = 86 ****)
      
 REMAINING ENTRY SKIPPED
+
+
+---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+
+demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 9.83 ; (LHS = 0, INFES = 9.83 ****)
+     
+demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 5 ; (LHS = 0, INFES = 5 ****)
+     
+demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
+     
+REMAINING 29 ENTRIES SKIPPED
 
 
 ---- debits_min  =L=  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
@@ -223,18 +234,7 @@ puissances(small,p1,t3)..  - 0.09627*qkt(small,p1,t3) + pkt(small,p1,t3) - 3.811
      
 REMAINING 24 ENTRIES SKIPPED
 
-
----- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
-
-demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 9.83 ; (LHS = 0, INFES = 9.83 ****)
-     
-demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 5 ; (LHS = 0, INFES = 5 ****)
-     
-demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
-     
-REMAINING 29 ENTRIES SKIPPED
-
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 14:39:57 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:43:40 Page 3
 Pump scheduling smallest
 Column Listing      SOLVE Planification Using MIP From line 126
 
@@ -269,6 +269,7 @@ REMAINING 24 ENTRIES SKIPPED
 qrt(r1,t1)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
        -1       flow(t1)
+        1       demandes_t1(r1)
 
 qrt(r1,t2)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
@@ -288,7 +289,7 @@ vrt(r1,t1)
                 (.LO, .L, .UP, .M = 0, 0, +INF, 0)
        -1       volumes_min(r1,t1)
         1       volumes_max(r1,t1)
-        1       volume_init(r1)
+       -1       demandes_t1(r1)
         1       demandes(r1,t2)
 
 vrt(r1,t2)
@@ -351,7 +352,7 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 14:39:57 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:43:40 Page 4
 Pump scheduling smallest
 Model Statistics    SOLVE Planification Using MIP From line 126
 
@@ -360,14 +361,14 @@ MODEL STATISTICS
 
 BLOCKS OF EQUATIONS           9     SINGLE EQUATIONS          199
 BLOCKS OF VARIABLES           6     SINGLE VARIABLES          154
-NON ZERO ELEMENTS           425     DISCRETE VARIABLES         27
+NON ZERO ELEMENTS           429     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/03/22 14:39:57 Page 5
+EXECUTION TIME       =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:43:40 Page 5
 Pump scheduling smallest
 Solution Report     SOLVE Planification Using MIP From line 126
 
@@ -380,10 +381,10 @@ Solution Report     SOLVE Planification Using MIP From line 126
 
 **** SOLVER STATUS     1 Normal Completion         
 **** MODEL STATUS      8 Integer Solution          
-**** OBJECTIVE VALUE                1.1320
+**** OBJECTIVE VALUE                1.4387
 
  RESOURCE USAGE, LIMIT          0.000      1000.000
- ITERATION COUNT, LIMIT        24    2000000000
+ ITERATION COUNT, LIMIT        21    2000000000
 
 IBM ILOG CPLEX   25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
 Cplex 12.8.0.0
@@ -391,18 +392,18 @@ Cplex 12.8.0.0
 Space for names approximately 0.01 Mb
 Use option 'names no' to turn use of names off
 MIP status(102): integer optimal, tolerance
-Cplex Time: 0.00sec (det. 1.03 ticks)
+Cplex Time: 0.00sec (det. 1.11 ticks)
 Fixing integer variables, and solving final LP...
 Fixed MIP status(1): optimal
 Cplex Time: 0.00sec (det. 0.17 ticks)
 Solution satisfies tolerances.
 
-MIP Solution:            1.132017    (21 iterations, 0 nodes)
-Final Solve:             1.132017    (3 iterations)
+MIP Solution:            1.438698    (19 iterations, 0 nodes)
+Final Solve:             1.438698    (2 iterations)
 
-Best possible:           1.117298
-Absolute gap:            0.014719
-Relative gap:            0.013002
+Best possible:           1.390879
+Absolute gap:            0.047819
+Relative gap:            0.033238
 
 
                            LOWER          LEVEL          UPPER         MARGINAL
@@ -415,7 +416,7 @@ Relative gap:            0.013002
 
           LOWER          LEVEL          UPPER         MARGINAL
 
-t1          .              .              .             EPS         
+t1          .              .              .             0.0028      
 t2          .              .              .             0.0028      
 t3          .              .              .             0.0028      
 t4          .              .              .             0.0028      
@@ -429,7 +430,7 @@ t9          .              .              .             0.0028
 
              LOWER          LEVEL          UPPER         MARGINAL
 
-r1.t1        -INF         -100.0000      -100.0000          .          
+r1.t1        -INF         -107.7800      -100.0000          .          
 r1.t2        -INF         -105.0000      -100.0000          .          
 r1.t3        -INF         -100.0000      -100.0000         EPS         
 r1.t4        -INF         -125.6700      -100.0000          .          
@@ -438,27 +439,27 @@ r1.t6        -INF         -113.5000      -100.0000          .
 r1.t7        -INF         -106.0000      -100.0000          .          
 r1.t8        -INF         -103.0000      -100.0000          .          
 r1.t9        -INF         -100.0000      -100.0000        -0.0028      
-r2.t1        -INF         -100.0000      -100.0000          .          
-r2.t2        -INF         -163.0000      -100.0000          .          
-r2.t3        -INF         -145.0000      -100.0000          .          
+r2.t1        -INF         -100.0000      -100.0000         EPS         
+r2.t2        -INF         -118.0000      -100.0000          .          
+r2.t3        -INF         -100.0000      -100.0000         EPS         
 r2.t4        -INF         -145.0000      -100.0000          .          
 r2.t5        -INF         -145.0000      -100.0000          .          
 r2.t6        -INF         -145.0000      -100.0000          .          
 r2.t7        -INF         -145.0000      -100.0000          .          
 r2.t8        -INF         -145.0000      -100.0000          .          
 r2.t9        -INF         -100.0000      -100.0000        -0.0028      
-r3.t1        -INF         -100.0000      -100.0000          .          
-r3.t2        -INF         -121.2900      -100.0000          .          
-r3.t3        -INF         -107.9600      -100.0000          .          
+r3.t1        -INF         -100.0000      -100.0000         EPS         
+r3.t2        -INF         -113.3300      -100.0000          .          
+r3.t3        -INF         -100.0000      -100.0000         EPS         
 r3.t4        -INF         -152.3300      -100.0000          .          
 r3.t5        -INF         -141.3300      -100.0000          .          
 r3.t6        -INF         -131.3300      -100.0000          .          
 r3.t7        -INF         -121.3300      -100.0000          .          
 r3.t8        -INF         -110.3300      -100.0000          .          
 r3.t9        -INF         -100.0000      -100.0000        -0.0028      
-r4.t1        -INF         -100.0000      -100.0000          .          
-r4.t2        -INF         -126.3300      -100.0000          .          
-r4.t3        -INF         -125.3300      -100.0000          .          
+r4.t1        -INF         -100.0000      -100.0000         EPS         
+r4.t2        -INF         -101.0000      -100.0000          .          
+r4.t3        -INF         -100.0000      -100.0000         EPS         
 r4.t4        -INF         -116.8300      -100.0000          .          
 r4.t5        -INF         -107.3300      -100.0000          .          
 r4.t6        -INF         -103.3300      -100.0000          .          
@@ -470,7 +471,7 @@ r4.t9        -INF         -100.0000      -100.0000        -0.0028
 
              LOWER          LEVEL          UPPER         MARGINAL
 
-r1.t1        -INF          100.0000       300.0000          .          
+r1.t1        -INF          107.7800       300.0000          .          
 r1.t2        -INF          105.0000       300.0000          .          
 r1.t3        -INF          100.0000       300.0000          .          
 r1.t4        -INF          125.6700       300.0000          .          
@@ -480,8 +481,8 @@ r1.t7        -INF          106.0000       300.0000          .
 r1.t8        -INF          103.0000       300.0000          .          
 r1.t9        -INF          100.0000       300.0000          .          
 r2.t1        -INF          100.0000       300.0000          .          
-r2.t2        -INF          163.0000       300.0000          .          
-r2.t3        -INF          145.0000       300.0000          .          
+r2.t2        -INF          118.0000       300.0000          .          
+r2.t3        -INF          100.0000       300.0000          .          
 r2.t4        -INF          145.0000       300.0000          .          
 r2.t5        -INF          145.0000       300.0000          .          
 r2.t6        -INF          145.0000       300.0000          .          
@@ -489,8 +490,8 @@ r2.t7        -INF          145.0000       300.0000          .
 r2.t8        -INF          145.0000       300.0000          .          
 r2.t9        -INF          100.0000       300.0000          .          
 r3.t1        -INF          100.0000       300.0000          .          
-r3.t2        -INF          121.2900       300.0000          .          
-r3.t3        -INF          107.9600       300.0000          .          
+r3.t2        -INF          113.3300       300.0000          .          
+r3.t3        -INF          100.0000       300.0000          .          
 r3.t4        -INF          152.3300       300.0000          .          
 r3.t5        -INF          141.3300       300.0000          .          
 r3.t6        -INF          131.3300       300.0000          .          
@@ -498,8 +499,8 @@ r3.t7        -INF          121.3300       300.0000          .
 r3.t8        -INF          110.3300       300.0000          .          
 r3.t9        -INF          100.0000       300.0000          .          
 r4.t1        -INF          100.0000       300.0000          .          
-r4.t2        -INF          126.3300       300.0000          .          
-r4.t3        -INF          125.3300       300.0000          .          
+r4.t2        -INF          101.0000       300.0000          .          
+r4.t3        -INF          100.0000       300.0000          .          
 r4.t4        -INF          116.8300       300.0000          .          
 r4.t5        -INF          107.3300       300.0000          .          
 r4.t6        -INF          103.3300       300.0000          .          
@@ -507,110 +508,14 @@ r4.t7        -INF          101.0000       300.0000          .
 r4.t8        -INF          101.0000       300.0000          .          
 r4.t9        -INF          100.0000       300.0000          .          
 
----- EQU volume_init  volumes init pour chaque réservoir r
+---- EQU demandes_t1  demandes pour t1 et pour chaque réservoir r
 
           LOWER          LEVEL          UPPER         MARGINAL
 
-r1       100.0000       100.0000       100.0000        -0.0028      
-r2       100.0000       100.0000       100.0000        -0.0028      
-r3       100.0000       100.0000       100.0000        -0.0028      
-r4       100.0000       100.0000       100.0000        -0.0028      
-
----- EQU debits_min  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-small.p1.t1        -INF             .              .              .          
-small.p1.t2        -INF          -99.2100          .              .          
-small.p1.t3        -INF             .              .              .          
-small.p1.t4        -INF             .              .              .          
-small.p1.t5        -INF             .              .              .          
-small.p1.t6        -INF             .              .              .          
-small.p1.t7        -INF             .              .              .          
-small.p1.t8        -INF             .              .              .          
-small.p1.t9        -INF             .              .              .          
-small.p2.t1        -INF             .              .              .          
-small.p2.t2        -INF          -86.0700          .              .          
-small.p2.t3        -INF             .              .              .          
-small.p2.t4        -INF             .              .              .          
-small.p2.t5        -INF             .              .              .          
-small.p2.t6        -INF             .              .              .          
-small.p2.t7        -INF             .              .              .          
-small.p2.t8        -INF             .              .              .          
-small.p2.t9        -INF             .              .              .          
-small.p3.t1        -INF             .              .              .          
-small.p3.t2        -INF             .              .              .          
-small.p3.t3        -INF             .              .              .          
-small.p3.t4        -INF          -99.2100          .              .          
-small.p3.t5        -INF             .              .              .          
-small.p3.t6        -INF             .              .              .          
-small.p3.t7        -INF             .              .              .          
-small.p3.t8        -INF             .              .              .          
-small.p3.t9        -INF             .              .              .          
-
----- EQU debits_max  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-small.p1.t1        -INF             .              .              .          
-small.p1.t2        -INF             .              .             EPS         
-small.p1.t3        -INF             .              .            -0.0028      
-small.p1.t4        -INF             .              .            -0.0028      
-small.p1.t5        -INF             .              .            -0.0028      
-small.p1.t6        -INF             .              .            -0.0028      
-small.p1.t7        -INF             .              .            -0.0028      
-small.p1.t8        -INF             .              .            -0.0028      
-small.p1.t9        -INF             .              .            -0.0028      
-small.p2.t1        -INF             .              .              .          
-small.p2.t2        -INF          -13.1400          .              .          
-small.p2.t3        -INF             .              .            -0.0028      
-small.p2.t4        -INF             .              .            -0.0028      
-small.p2.t5        -INF             .              .            -0.0028      
-small.p2.t6        -INF             .              .            -0.0028      
-small.p2.t7        -INF             .              .            -0.0028      
-small.p2.t8        -INF             .              .            -0.0028      
-small.p2.t9        -INF             .              .            -0.0028      
-small.p3.t1        -INF             .              .              .          
-small.p3.t2        -INF             .              .            -0.0028      
-small.p3.t3        -INF             .              .            -0.0028      
-small.p3.t4        -INF             .              .             EPS         
-small.p3.t5        -INF             .              .            -0.0028      
-small.p3.t6        -INF             .              .            -0.0028      
-small.p3.t7        -INF             .              .            -0.0028      
-small.p3.t8        -INF             .              .            -0.0028      
-small.p3.t9        -INF             .              .            -0.0028      
-
----- EQU puissances  puissances de chaque pompe à chaque temps t et pour chaque pompe k
-
-                   LOWER          LEVEL          UPPER         MARGINAL
-
-small.p1.t1          .              .              .              .          
-small.p1.t2          .              .              .             0.0292      
-small.p1.t3          .              .              .              .          
-small.p1.t4          .              .              .              .          
-small.p1.t5          .              .              .              .          
-small.p1.t6          .              .              .              .          
-small.p1.t7          .              .              .              .          
-small.p1.t8          .              .              .              .          
-small.p1.t9          .              .              .              .          
-small.p2.t1          .              .              .              .          
-small.p2.t2          .              .              .             0.0292      
-small.p2.t3          .              .              .              .          
-small.p2.t4          .              .              .              .          
-small.p2.t5          .              .              .              .          
-small.p2.t6          .              .              .              .          
-small.p2.t7          .              .              .              .          
-small.p2.t8          .              .              .              .          
-small.p2.t9          .              .              .              .          
-small.p3.t1          .              .              .              .          
-small.p3.t2          .              .              .              .          
-small.p3.t3          .              .              .              .          
-small.p3.t4          .              .              .             0.0292      
-small.p3.t5          .              .              .              .          
-small.p3.t6          .              .              .              .          
-small.p3.t7          .              .              .              .          
-small.p3.t8          .              .              .              .          
-small.p3.t9          .              .              .              .          
+r1       -90.1700       -90.1700       -90.1700         0.0028      
+r2       -55.1700       -55.1700       -55.1700         0.0028      
+r3       -86.0000       -86.0000       -86.0000         0.0028      
+r4       -99.0000       -99.0000       -99.0000         0.0028      
 
 ---- EQU demandes  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
 
@@ -649,11 +554,107 @@ r4.t7         2.3300         2.3300         2.3300         0.0028
 r4.t8          .              .              .             0.0028      
 r4.t9         1.0000         1.0000         1.0000         0.0028      
 
+---- EQU debits_min  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1        -INF          -77.4400          .              .          
+small.p1.t2        -INF          -99.2100          .              .          
+small.p1.t3        -INF             .              .              .          
+small.p1.t4        -INF             .              .              .          
+small.p1.t5        -INF             .              .              .          
+small.p1.t6        -INF             .              .              .          
+small.p1.t7        -INF             .              .              .          
+small.p1.t8        -INF             .              .              .          
+small.p1.t9        -INF             .              .              .          
+small.p2.t1        -INF             .              .              .          
+small.p2.t2        -INF             .              .              .          
+small.p2.t3        -INF             .              .              .          
+small.p2.t4        -INF          -99.2100          .              .          
+small.p2.t5        -INF             .              .              .          
+small.p2.t6        -INF             .              .              .          
+small.p2.t7        -INF             .              .              .          
+small.p2.t8        -INF             .              .              .          
+small.p2.t9        -INF             .              .              .          
+small.p3.t1        -INF             .              .              .          
+small.p3.t2        -INF             .              .              .          
+small.p3.t3        -INF             .              .              .          
+small.p3.t4        -INF          -78.2900          .              .          
+small.p3.t5        -INF             .              .              .          
+small.p3.t6        -INF             .              .              .          
+small.p3.t7        -INF             .              .              .          
+small.p3.t8        -INF             .              .              .          
+small.p3.t9        -INF             .              .              .          
+
+---- EQU debits_max  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1        -INF          -21.7700          .              .          
+small.p1.t2        -INF             .              .             EPS         
+small.p1.t3        -INF             .              .            -0.0028      
+small.p1.t4        -INF             .              .            -0.0028      
+small.p1.t5        -INF             .              .            -0.0028      
+small.p1.t6        -INF             .              .            -0.0028      
+small.p1.t7        -INF             .              .            -0.0028      
+small.p1.t8        -INF             .              .            -0.0028      
+small.p1.t9        -INF             .              .            -0.0028      
+small.p2.t1        -INF             .              .            -0.0028      
+small.p2.t2        -INF             .              .            -0.0028      
+small.p2.t3        -INF             .              .            -0.0028      
+small.p2.t4        -INF             .              .             EPS         
+small.p2.t5        -INF             .              .            -0.0028      
+small.p2.t6        -INF             .              .            -0.0028      
+small.p2.t7        -INF             .              .            -0.0028      
+small.p2.t8        -INF             .              .            -0.0028      
+small.p2.t9        -INF             .              .            -0.0028      
+small.p3.t1        -INF             .              .            -0.0028      
+small.p3.t2        -INF             .              .            -0.0028      
+small.p3.t3        -INF             .              .            -0.0028      
+small.p3.t4        -INF          -20.9200          .              .          
+small.p3.t5        -INF             .              .            -0.0028      
+small.p3.t6        -INF             .              .            -0.0028      
+small.p3.t7        -INF             .              .            -0.0028      
+small.p3.t8        -INF             .              .            -0.0028      
+small.p3.t9        -INF             .              .            -0.0028      
+
+---- EQU puissances  puissances de chaque pompe à chaque temps t et pour chaque pompe k
+
+                   LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1          .              .              .             0.0292      
+small.p1.t2          .              .              .             0.0292      
+small.p1.t3          .              .              .              .          
+small.p1.t4          .              .              .              .          
+small.p1.t5          .              .              .              .          
+small.p1.t6          .              .              .              .          
+small.p1.t7          .              .              .              .          
+small.p1.t8          .              .              .              .          
+small.p1.t9          .              .              .              .          
+small.p2.t1          .              .              .              .          
+small.p2.t2          .              .              .              .          
+small.p2.t3          .              .              .              .          
+small.p2.t4          .              .              .             0.0292      
+small.p2.t5          .              .              .              .          
+small.p2.t6          .              .              .              .          
+small.p2.t7          .              .              .              .          
+small.p2.t8          .              .              .              .          
+small.p2.t9          .              .              .              .          
+small.p3.t1          .              .              .              .          
+small.p3.t2          .              .              .              .          
+small.p3.t3          .              .              .              .          
+small.p3.t4          .              .              .             0.0292      
+small.p3.t5          .              .              .              .          
+small.p3.t6          .              .              .              .          
+small.p3.t7          .              .              .              .          
+small.p3.t8          .              .              .              .          
+small.p3.t9          .              .              .              .          
+
 ---- VAR qkt  Débit d_eau pompé par la pompe k à la période t
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-small.p1.t1          .              .            +INF            EPS         
+small.p1.t1          .            77.4400        +INF             .          
 small.p1.t2          .            99.2100        +INF             .          
 small.p1.t3          .              .            +INF             .          
 small.p1.t4          .              .            +INF             .          
@@ -662,19 +663,19 @@ small.p1.t6          .              .            +INF             .
 small.p1.t7          .              .            +INF             .          
 small.p1.t8          .              .            +INF             .          
 small.p1.t9          .              .            +INF             .          
-small.p2.t1          .              .            +INF            EPS         
-small.p2.t2          .            86.0700        +INF             .          
+small.p2.t1          .              .            +INF             .          
+small.p2.t2          .              .            +INF             .          
 small.p2.t3          .              .            +INF             .          
-small.p2.t4          .              .            +INF             .          
+small.p2.t4          .            99.2100        +INF             .          
 small.p2.t5          .              .            +INF             .          
 small.p2.t6          .              .            +INF             .          
 small.p2.t7          .              .            +INF             .          
 small.p2.t8          .              .            +INF             .          
 small.p2.t9          .              .            +INF             .          
-small.p3.t1          .              .            +INF            EPS         
+small.p3.t1          .              .            +INF             .          
 small.p3.t2          .              .            +INF             .          
 small.p3.t3          .              .            +INF             .          
-small.p3.t4          .            99.2100        +INF             .          
+small.p3.t4          .            78.2900        +INF             .          
 small.p3.t5          .              .            +INF             .          
 small.p3.t6          .              .            +INF             .          
 small.p3.t7          .              .            +INF             .          
@@ -685,8 +686,8 @@ small.p3.t9          .              .            +INF             .
 
              LOWER          LEVEL          UPPER         MARGINAL
 
-r1.t1          .              .            +INF             .          
-r1.t2          .            14.8300        +INF             .          
+r1.t1          .            17.6100        +INF             .          
+r1.t2          .             7.0500        +INF             .          
 r1.t3          .              .            +INF             .          
 r1.t4          .            29.3400        +INF             .          
 r1.t5          .              .            +INF             .          
@@ -694,28 +695,28 @@ r1.t6          .              .            +INF             .
 r1.t7          .              .            +INF             .          
 r1.t8          .              .            +INF             .          
 r1.t9          .              .            +INF             .          
-r2.t1          .              .            +INF            EPS         
-r2.t2          .           107.8300        +INF             .          
+r2.t1          .            44.8300        +INF             .          
+r2.t2          .            62.8300        +INF             .          
 r2.t3          .              .            +INF            EPS         
-r2.t4          .              .            +INF            EPS         
+r2.t4          .            45.0000        +INF             .          
 r2.t5          .              .            +INF            EPS         
 r2.t6          .              .            +INF            EPS         
 r2.t7          .              .            +INF            EPS         
 r2.t8          .              .            +INF            EPS         
 r2.t9          .              .            +INF            EPS         
-r3.t1          .              .            +INF            EPS         
-r3.t2          .            35.2900        +INF             .          
+r3.t1          .            14.0000        +INF             .          
+r3.t2          .            27.3300        +INF             .          
 r3.t3          .              .            +INF            EPS         
-r3.t4          .            69.8700        +INF             .          
+r3.t4          .            77.8300        +INF             .          
 r3.t5          .              .            +INF            EPS         
 r3.t6          .              .            +INF            EPS         
 r3.t7          .              .            +INF            EPS         
 r3.t8          .              .            +INF            EPS         
 r3.t9          .              .            +INF            EPS         
-r4.t1          .              .            +INF            EPS         
-r4.t2          .            27.3300        +INF             .          
+r4.t1          .             1.0000        +INF             .          
+r4.t2          .             2.0000        +INF             .          
 r4.t3          .              .            +INF            EPS         
-r4.t4          .              .            +INF            EPS         
+r4.t4          .            25.3300        +INF             .          
 r4.t5          .              .            +INF            EPS         
 r4.t6          .              .            +INF            EPS         
 r4.t7          .              .            +INF            EPS         
@@ -726,7 +727,7 @@ r4.t9          .              .            +INF            EPS
 
              LOWER          LEVEL          UPPER         MARGINAL
 
-r1.t1          .           100.0000        +INF             .          
+r1.t1          .           107.7800        +INF             .          
 r1.t2          .           105.0000        +INF             .          
 r1.t3          .           100.0000        +INF             .          
 r1.t4          .           125.6700        +INF             .          
@@ -736,8 +737,8 @@ r1.t7          .           106.0000        +INF             .
 r1.t8          .           103.0000        +INF             .          
 r1.t9          .           100.0000        +INF             .          
 r2.t1          .           100.0000        +INF             .          
-r2.t2          .           163.0000        +INF             .          
-r2.t3          .           145.0000        +INF             .          
+r2.t2          .           118.0000        +INF             .          
+r2.t3          .           100.0000        +INF             .          
 r2.t4          .           145.0000        +INF             .          
 r2.t5          .           145.0000        +INF             .          
 r2.t6          .           145.0000        +INF             .          
@@ -745,8 +746,8 @@ r2.t7          .           145.0000        +INF             .
 r2.t8          .           145.0000        +INF             .          
 r2.t9          .           100.0000        +INF             .          
 r3.t1          .           100.0000        +INF             .          
-r3.t2          .           121.2900        +INF             .          
-r3.t3          .           107.9600        +INF             .          
+r3.t2          .           113.3300        +INF             .          
+r3.t3          .           100.0000        +INF             .          
 r3.t4          .           152.3300        +INF             .          
 r3.t5          .           141.3300        +INF             .          
 r3.t6          .           131.3300        +INF             .          
@@ -754,8 +755,8 @@ r3.t7          .           121.3300        +INF             .
 r3.t8          .           110.3300        +INF             .          
 r3.t9          .           100.0000        +INF             .          
 r4.t1          .           100.0000        +INF             .          
-r4.t2          .           126.3300        +INF             .          
-r4.t3          .           125.3300        +INF             .          
+r4.t2          .           101.0000        +INF             .          
+r4.t3          .           100.0000        +INF             .          
 r4.t4          .           116.8300        +INF             .          
 r4.t5          .           107.3300        +INF             .          
 r4.t6          .           103.3300        +INF             .          
@@ -767,7 +768,7 @@ r4.t9          .           100.0000        +INF             .
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-small.p1.t1          .              .            +INF            0.0292      
+small.p1.t1          .            11.2662        +INF             .          
 small.p1.t2          .            13.3620        +INF             .          
 small.p1.t3          .              .            +INF            0.0292      
 small.p1.t4          .              .            +INF            0.0292      
@@ -777,9 +778,9 @@ small.p1.t7          .              .            +INF            0.0461
 small.p1.t8          .              .            +INF            0.0461      
 small.p1.t9          .              .            +INF            0.0461      
 small.p2.t1          .              .            +INF            0.0292      
-small.p2.t2          .            12.0970        +INF             .          
+small.p2.t2          .              .            +INF            0.0292      
 small.p2.t3          .              .            +INF            0.0292      
-small.p2.t4          .              .            +INF            0.0292      
+small.p2.t4          .            13.3620        +INF             .          
 small.p2.t5          .              .            +INF            0.0461      
 small.p2.t6          .              .            +INF            0.0461      
 small.p2.t7          .              .            +INF            0.0461      
@@ -788,7 +789,7 @@ small.p2.t9          .              .            +INF            0.0461
 small.p3.t1          .              .            +INF            0.0292      
 small.p3.t2          .              .            +INF            0.0292      
 small.p3.t3          .              .            +INF            0.0292      
-small.p3.t4          .            13.3620        +INF             .          
+small.p3.t4          .            11.3480        +INF             .          
 small.p3.t5          .              .            +INF            0.0461      
 small.p3.t6          .              .            +INF            0.0461      
 small.p3.t7          .              .            +INF            0.0461      
@@ -799,7 +800,7 @@ small.p3.t9          .              .            +INF            0.0461
 
                    LOWER          LEVEL          UPPER         MARGINAL
 
-small.p1.t1          .              .             1.0000         EPS         
+small.p1.t1          .             1.0000         1.0000         0.1111      
 small.p1.t2          .             1.0000         1.0000         0.1111      
 small.p1.t3          .              .             1.0000        -0.2785      
 small.p1.t4          .              .             1.0000        -0.2785      
@@ -808,16 +809,16 @@ small.p1.t6          .              .             1.0000        -0.2785
 small.p1.t7          .              .             1.0000        -0.2785      
 small.p1.t8          .              .             1.0000        -0.2785      
 small.p1.t9          .              .             1.0000        -0.2785      
-small.p2.t1          .              .             1.0000         EPS         
-small.p2.t2          .             1.0000         1.0000         0.1111      
+small.p2.t1          .              .             1.0000        -0.2785      
+small.p2.t2          .              .             1.0000        -0.2785      
 small.p2.t3          .              .             1.0000        -0.2785      
-small.p2.t4          .              .             1.0000        -0.2785      
+small.p2.t4          .             1.0000         1.0000         0.1111      
 small.p2.t5          .              .             1.0000        -0.2785      
 small.p2.t6          .              .             1.0000        -0.2785      
 small.p2.t7          .              .             1.0000        -0.2785      
 small.p2.t8          .              .             1.0000        -0.2785      
 small.p2.t9          .              .             1.0000        -0.2785      
-small.p3.t1          .              .             1.0000         EPS         
+small.p3.t1          .              .             1.0000        -0.2785      
 small.p3.t2          .              .             1.0000        -0.2785      
 small.p3.t3          .              .             1.0000        -0.2785      
 small.p3.t4          .             1.0000         1.0000         0.1111      
@@ -829,7 +830,7 @@ small.p3.t9          .              .             1.0000        -0.2785
 
                            LOWER          LEVEL          UPPER         MARGINAL
 
----- VAR z                 -INF            1.1320        +INF             .          
+---- VAR z                 -INF            1.4387        +INF             .          
 
   z  Coût total
 

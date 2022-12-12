@@ -82,9 +82,7 @@ free variable
 
 Equations
     cost    definition de la fonction objective
-    flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
-    flow_r(t,n)   conservation du flow à chaque temps t
-    flow_j(t,n)   conservation du flow à chaque temps t
+    flow(t)   conservation du flow à chaque temps t
     volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
     volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
     demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
@@ -96,9 +94,7 @@ Equations
     
     
 cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
-flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
-flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
-flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
 volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
 volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
