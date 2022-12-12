@@ -66,3 +66,44 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j2.r2      0.00223839      0.00851091
      j2.r3      0.00134303      0.00510655;
       
+Positive Variable
+    qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+    qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+    qlt(n,n,t)  débit en pipe l au temps t 
+    vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+    pkt(c,d,t) Puissance de la pompe k à la période t
+    charge(n,t) Charge à chaque noeud j à la période t;
+
+Binary Variable
+    xkt(c,d,t) Pompe k allumé à la période t, sinon 0; 
+     
+free variable
+    z Coût total ;
+
+Equations
+    cost    definition de la fonction objective
+    flow(t)   conservation du flow à chaque temps t
+    volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+    volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+    demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+    
+    
+    
+cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
+puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+
+
+Model Planification /all/;
+
+Solve Planification using mip minimizing z ;

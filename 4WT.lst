@@ -1,0 +1,1436 @@
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:44:28 Page 1
+Pump Scheduling 4WT
+C o m p i l a t i o n
+
+
+   2   
+   3  Sets
+   4       n          nodes       / s, j1, j2, r1, r2, r3, r4 /
+   5       j(n)       junctions   / j1, j2 /
+   6       r(n)       reservoirs  / r1, r2, r3, r4 /
+   7       l(n,n)     pipes       / s.j1, j1.j2, j1.r1, j1.r4, j2.r2, j2.r3 /
+   8       t          1-hour periods  / t1*t24 /
+   9       night(t)   night periods   / t1*t8 /
+  10       c          pump class    / small /
+  11       d          pump number   / p1*p3 /
+  12       k(c,d)     pump type     / small.p1*p3 /
+  13       degree     polynomial degrees / 0*2 /
+  14   
+  15       alias (n,np)
+  16       alias (k,kp)
+  17       alias (d,dp);
+  18   
+  19  Scalar
+  20       height0      reference height at the source (m)     / 0 /
+  21       tariffnight  electricity hourly tariff at night (euro.kWh^-1) / 0.02916 /
+  22       tariffday    electricity hourly tariff at day (euro.kWh^-1)   / 0.04609 /
+  23   
+  24  Parameter tariff(t)   electricity tariff;
+  25      tariff(t)        = tariffday;
+  26      tariff(night(t)) = tariffnight;
+  27   
+  28  Parameters
+  29      height(n)   elevation at each node relative to s (m)
+  30                  / s 0, j1 30, j2 30, r1 50, r2 50, r3 45, r4 35 /
+  31   
+  32      surface(r)  mean surface of each reservoir (m^2)
+  33                  / r1 80, r2 80, r3 80, r4 80 /
+  34   
+  35      vmin(r)     minimal volume of each reservoir (m^3)
+  36                  / r1 100, r2 100, r3 100, r4 100 /
+  37   
+  38      vmax(r)     maximal volume of each reservoir (m^3)
+  39                  / r1 300, r2 300, r3 300, r4 300 /
+  40   
+  41  Parameter vinit(r) initial volume of each reservoir;
+  42      vinit(r) = vmin(r);
+  43   
+  44  * a polynomial is represented as the list of coefficients for each term degree
+  45  Table psi(c,degree) quadratic fit of the service pressure (m) on the flow (m^3.h^-1) for each class of pumps
+  46                    0              1            2
+  47        small       63.0796        0            -0.0064085;
+  48   
+  49  Table gamma(c,degree) linear fit of the electrical power (kW) on the flow (m^3.h^-1) for each class of pumps
+  50                    0              1
+  51        small       3.81101     0.09627;
+  52   
+  53  Table demand(r,t) demand in water at each reservoir and each hour (m^3)
+  54       t1     t2    t3    t4     t5     t6    t7      t8      t9     t10   t11   t12   t13    t14    t15   t16   t17   t18   t19   t20   t21   t22   t23   t24
+  55  r1   9.83   5.0   3.67  6.5    5.67   7.5   3.0     3.0     2.0    13.5  14.0  12.0  12.0   12.0   12.0  12.83 15.67 13.17 12.0  10.0  11.0  14.0  19.5  10.17
+  56  r2   44.83  18.0  0.0   0.0    0.0    0.0   0.0     45.0    51.67  0.0   0.0   0.0   15.17  103.83 34.83 43.83 54.83 51.17 53.5  0.67  0.0   0.0   1.5   53.5
+  57  r3   14.0   13.33 25.5  11.0   10.0   10.0  11.0    10.33   30.17  17.67 36.33 38.0  35.0   35.17  19.33 31.83 23.5  16.83 28.0  33.5  39.0  38.5  32.67 29.67
+  58  r4   1.0    1.0   8.5   9.5    4.0    2.33  0.0     1.0     0.83   2.0   2.0   2.0   2.0    2.0    2.0   3.0   2.0   1.0   2.0   3.0   2.0   3.0   3.0   2.0;
+  59   
+  60  Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^-1) for each pipe
+  61                  2               1
+  62       s.j1       0.00005425      0.00038190
+  63       j1.j2      0.00027996      0.00149576
+  64       j1.r1      0.00089535      0.00340436
+  65       j1.r4      0.00044768      0.00170218
+  66       j2.r2      0.00223839      0.00851091
+  67       j2.r3      0.00134303      0.00510655;
+  68   
+  69  Positive Variable
+  70      qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+  71      qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+  72      qlt(n,n,t)  débit en pipe l au temps t
+  73      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+  74      pkt(c,d,t) Puissance de la pompe k à la période t
+  75      charge(n,t) Charge à chaque noeud j à la période t;
+  76   
+  77  Binary Variable
+  78      xkt(c,d,t) Pompe k allumé à la période t, sinon 0;
+  79   
+  80  free variable
+  81      z Coût total ;
+  82   
+  83  Equations
+  84      cost    definition de la fonction objective
+  85      flow(t)   conservation du flow à chaque temps t
+  86      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+  87      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+  88      demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+  89      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+  90      debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+  91      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+  92      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+  93   
+  94   
+  95   
+  96  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+  97  flow(t) ..     sum((k), qkt(k,t))  =e=  sum((r), qrt(r,t)) ;
+  98  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+  99  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 100  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+ 101  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 102  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+ 103  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
+ 104  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+ 105   
+ 106   
+ 107  Model Planification /all/;
+ 108   
+ 109  Solve Planification using mip minimizing z ;
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME sinon OF TYPE VAR  
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:44:28 Page 2
+Pump Scheduling 4WT
+Equation Listing    SOLVE Planification Using MIP From line 109
+
+
+---- cost  =E=  definition de la fonction objective
+
+cost..  - 0.02916*pkt(small,p1,t1) - 0.02916*pkt(small,p1,t2) - 0.02916*pkt(small,p1,t3) - 0.02916*pkt(small,p1,t4) - 0.02916*pkt(small,p1,t5) - 0.02916*pkt(small,p1,t6) - 0.02916*pkt(small,p1,t7) - 0.02916*pkt(small,p1,t8) - 0.04609*pkt(small,p1,t9)
+     
+      - 0.04609*pkt(small,p1,t10) - 0.04609*pkt(small,p1,t11) - 0.04609*pkt(small,p1,t12) - 0.04609*pkt(small,p1,t13) - 0.04609*pkt(small,p1,t14) - 0.04609*pkt(small,p1,t15) - 0.04609*pkt(small,p1,t16) - 0.04609*pkt(small,p1,t17)
+     
+      - 0.04609*pkt(small,p1,t18) - 0.04609*pkt(small,p1,t19) - 0.04609*pkt(small,p1,t20) - 0.04609*pkt(small,p1,t21) - 0.04609*pkt(small,p1,t22) - 0.04609*pkt(small,p1,t23) - 0.04609*pkt(small,p1,t24) - 0.02916*pkt(small,p2,t1) - 0.02916*pkt(small,p2,t2)
+     
+      - 0.02916*pkt(small,p2,t3) - 0.02916*pkt(small,p2,t4) - 0.02916*pkt(small,p2,t5) - 0.02916*pkt(small,p2,t6) - 0.02916*pkt(small,p2,t7) - 0.02916*pkt(small,p2,t8) - 0.04609*pkt(small,p2,t9) - 0.04609*pkt(small,p2,t10) - 0.04609*pkt(small,p2,t11)
+     
+      - 0.04609*pkt(small,p2,t12) - 0.04609*pkt(small,p2,t13) - 0.04609*pkt(small,p2,t14) - 0.04609*pkt(small,p2,t15) - 0.04609*pkt(small,p2,t16) - 0.04609*pkt(small,p2,t17) - 0.04609*pkt(small,p2,t18) - 0.04609*pkt(small,p2,t19)
+     
+      - 0.04609*pkt(small,p2,t20) - 0.04609*pkt(small,p2,t21) - 0.04609*pkt(small,p2,t22) - 0.04609*pkt(small,p2,t23) - 0.04609*pkt(small,p2,t24) - 0.02916*pkt(small,p3,t1) - 0.02916*pkt(small,p3,t2) - 0.02916*pkt(small,p3,t3) - 0.02916*pkt(small,p3,t4)
+     
+      - 0.02916*pkt(small,p3,t5) - 0.02916*pkt(small,p3,t6) - 0.02916*pkt(small,p3,t7) - 0.02916*pkt(small,p3,t8) - 0.04609*pkt(small,p3,t9) - 0.04609*pkt(small,p3,t10) - 0.04609*pkt(small,p3,t11) - 0.04609*pkt(small,p3,t12) - 0.04609*pkt(small,p3,t13)
+     
+      - 0.04609*pkt(small,p3,t14) - 0.04609*pkt(small,p3,t15) - 0.04609*pkt(small,p3,t16) - 0.04609*pkt(small,p3,t17) - 0.04609*pkt(small,p3,t18) - 0.04609*pkt(small,p3,t19) - 0.04609*pkt(small,p3,t20) - 0.04609*pkt(small,p3,t21)
+     
+      - 0.04609*pkt(small,p3,t22) - 0.04609*pkt(small,p3,t23) - 0.04609*pkt(small,p3,t24) + z =E= 0 ; (LHS = 0)
+     
+
+---- flow  =E=  conservation du flow à chaque temps t
+
+flow(t1)..  qkt(small,p1,t1) + qkt(small,p2,t1) + qkt(small,p3,t1) - qrt(r1,t1) - qrt(r2,t1) - qrt(r3,t1) - qrt(r4,t1) =E= 0 ; (LHS = 0)
+     
+flow(t2)..  qkt(small,p1,t2) + qkt(small,p2,t2) + qkt(small,p3,t2) - qrt(r1,t2) - qrt(r2,t2) - qrt(r3,t2) - qrt(r4,t2) =E= 0 ; (LHS = 0)
+     
+flow(t3)..  qkt(small,p1,t3) + qkt(small,p2,t3) + qkt(small,p3,t3) - qrt(r1,t3) - qrt(r2,t3) - qrt(r3,t3) - qrt(r4,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 21 ENTRIES SKIPPED
+
+
+---- volumes_min  =L=  volumes min à chaque temps t et pour chaque réservoir r
+
+volumes_min(r1,t1)..  - vrt(r1,t1) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+volumes_min(r1,t2)..  - vrt(r1,t2) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+volumes_min(r1,t3)..  - vrt(r1,t3) =L= -100 ; (LHS = 0, INFES = 100 ****)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- volumes_max  =L=  volumes max à chaque temps t et pour chaque réservoir r
+
+volumes_max(r1,t1)..  vrt(r1,t1) =L= 300 ; (LHS = 0)
+     
+volumes_max(r1,t2)..  vrt(r1,t2) =L= 300 ; (LHS = 0)
+     
+volumes_max(r1,t3)..  vrt(r1,t3) =L= 300 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- demandes_t1  =E=  demandes pour t1 et pour chaque réservoir r
+
+demandes_t1(r1)..  qrt(r1,t1) - vrt(r1,t1) =E= -90.17 ; (LHS = 0, INFES = 90.17 ****)
+     
+demandes_t1(r2)..  qrt(r2,t1) - vrt(r2,t1) =E= -55.17 ; (LHS = 0, INFES = 55.17 ****)
+     
+demandes_t1(r3)..  qrt(r3,t1) - vrt(r3,t1) =E= -86 ; (LHS = 0, INFES = 86 ****)
+     
+REMAINING ENTRY SKIPPED
+
+
+---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+
+demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 9.83 ; (LHS = 0, INFES = 9.83 ****)
+     
+demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 5 ; (LHS = 0, INFES = 5 ****)
+     
+demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
+     
+REMAINING 89 ENTRIES SKIPPED
+
+
+---- debits_min  =L=  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+debits_min(small,p1,t1)..  - qkt(small,p1,t1) =L= 0 ; (LHS = 0)
+     
+debits_min(small,p1,t2)..  - qkt(small,p1,t2) =L= 0 ; (LHS = 0)
+     
+debits_min(small,p1,t3)..  - qkt(small,p1,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 69 ENTRIES SKIPPED
+
+
+---- debits_max  =L=  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+debits_max(small,p1,t1)..  qkt(small,p1,t1) - 99.21*xkt(small,p1,t1) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t2)..  qkt(small,p1,t2) - 99.21*xkt(small,p1,t2) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t3)..  qkt(small,p1,t3) - 99.21*xkt(small,p1,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 69 ENTRIES SKIPPED
+
+
+---- puissances  =E=  puissances de chaque pompe à chaque temps t et pour chaque pompe k
+
+puissances(small,p1,t1)..  - 0.09627*qkt(small,p1,t1) + pkt(small,p1,t1) - 3.81101*xkt(small,p1,t1) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t2)..  - 0.09627*qkt(small,p1,t2) + pkt(small,p1,t2) - 3.81101*xkt(small,p1,t2) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t3)..  - 0.09627*qkt(small,p1,t3) + pkt(small,p1,t3) - 3.81101*xkt(small,p1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 69 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:44:28 Page 3
+Pump Scheduling 4WT
+Column Listing      SOLVE Planification Using MIP From line 109
+
+
+---- qkt  Débit d_eau pompé par la pompe k à la période t
+
+qkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow(t1)
+       -1       debits_min(small,p1,t1)
+        1       debits_max(small,p1,t1)
+       -0.0963  puissances(small,p1,t1)
+
+qkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow(t2)
+       -1       debits_min(small,p1,t2)
+        1       debits_max(small,p1,t2)
+       -0.0963  puissances(small,p1,t2)
+
+qkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow(t3)
+       -1       debits_min(small,p1,t3)
+        1       debits_max(small,p1,t3)
+       -0.0963  puissances(small,p1,t3)
+
+REMAINING 69 ENTRIES SKIPPED
+
+---- qrt  Débit entrant dans chaque réservoir r à la période t
+
+qrt(r1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow(t1)
+        1       demandes_t1(r1)
+
+qrt(r1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow(t2)
+        1       demandes(r1,t2)
+
+qrt(r1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow(t3)
+        1       demandes(r1,t3)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- vrt  Volume d_eau dans les réservoirs r à la période t
+
+vrt(r1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t1)
+        1       volumes_max(r1,t1)
+       -1       demandes_t1(r1)
+        1       demandes(r1,t2)
+
+vrt(r1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t2)
+        1       volumes_max(r1,t2)
+       -1       demandes(r1,t2)
+        1       demandes(r1,t3)
+
+vrt(r1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r1,t3)
+        1       volumes_max(r1,t3)
+       -1       demandes(r1,t3)
+        1       demandes(r1,t4)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- pkt  Puissance de la pompe k à la période t
+
+pkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t1)
+
+pkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t2)
+
+pkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t3)
+
+REMAINING 69 ENTRIES SKIPPED
+
+---- xkt  Pompe k allumé à la période t
+
+xkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t1)
+       -3.811   puissances(small,p1,t1)
+
+xkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t2)
+       -3.811   puissances(small,p1,t2)
+
+xkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      -99.21    debits_max(small,p1,t3)
+       -3.811   puissances(small,p1,t3)
+
+REMAINING 69 ENTRIES SKIPPED
+
+---- z  Coût total
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:44:28 Page 4
+Pump Scheduling 4WT
+Model Statistics    SOLVE Planification Using MIP From line 109
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           9     SINGLE EQUATIONS          529
+BLOCKS OF VARIABLES           6     SINGLE VARIABLES          409
+NON ZERO ELEMENTS         1,149     DISCRETE VARIABLES         72
+
+
+GENERATION TIME      =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/12/22 08:44:28 Page 5
+Pump Scheduling 4WT
+Solution Report     SOLVE Planification Using MIP From line 109
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   Planification       OBJECTIVE  z
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  109
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      8 Integer Solution          
+**** OBJECTIVE VALUE                7.4042
+
+ RESOURCE USAGE, LIMIT          0.016      1000.000
+ ITERATION COUNT, LIMIT       110    2000000000
+
+IBM ILOG CPLEX   25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
+--- GAMS/Cplex licensed for continuous and discrete problems.
+Cplex 12.8.0.0
+
+Space for names approximately 0.02 Mb
+Use option 'names no' to turn use of names off
+MIP status(102): integer optimal, tolerance
+Cplex Time: 0.02sec (det. 3.31 ticks)
+Fixing integer variables, and solving final LP...
+Fixed MIP status(1): optimal
+Cplex Time: 0.00sec (det. 0.62 ticks)
+Solution satisfies tolerances.
+
+MIP Solution:            7.404214    (71 iterations, 0 nodes)
+Final Solve:             7.404214    (39 iterations)
+
+Best possible:           6.838024
+Absolute gap:            0.566190
+Relative gap:            0.076469
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU cost                .              .              .             1.0000      
+
+  cost  definition de la fonction objective
+
+---- EQU flow  conservation du flow à chaque temps t
+
+           LOWER          LEVEL          UPPER         MARGINAL
+
+t1           .              .              .             0.0028      
+t2           .              .              .             0.0028      
+t3           .              .              .             0.0028      
+t4           .              .              .             0.0028      
+t5           .              .              .             0.0028      
+t6           .              .              .             0.0028      
+t7           .              .              .             0.0028      
+t8           .              .              .             0.0028      
+t9           .              .              .             0.0044      
+t10          .              .              .             0.0044      
+t11          .              .              .             0.0044      
+t12          .              .              .             0.0044      
+t13          .              .              .             0.0044      
+t14          .              .              .             0.0044      
+t15          .              .              .             0.0044      
+t16          .              .              .             0.0044      
+t17          .              .              .             0.0044      
+t18          .              .              .             0.0044      
+t19          .              .              .             0.0044      
+t20          .              .              .             0.0044      
+t21          .              .              .             0.0044      
+t22          .              .              .             0.0044      
+t23          .              .              .             0.0044      
+t24          .              .              .             0.0044      
+
+---- EQU volumes_min  volumes min à chaque temps t et pour chaque réservoir r
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+r1.t1         -INF         -115.5500      -100.0000          .          
+r1.t2         -INF         -159.1000      -100.0000          .          
+r1.t3         -INF         -300.0000      -100.0000          .          
+r1.t4         -INF         -296.3300      -100.0000          .          
+r1.t5         -INF         -300.0000      -100.0000          .          
+r1.t6         -INF         -299.1700      -100.0000          .          
+r1.t7         -INF         -291.6700      -100.0000          .          
+r1.t8         -INF         -288.6700      -100.0000          .          
+r1.t9         -INF         -285.6700      -100.0000          .          
+r1.t10        -INF         -283.6700      -100.0000          .          
+r1.t11        -INF         -270.1700      -100.0000          .          
+r1.t12        -INF         -256.1700      -100.0000          .          
+r1.t13        -INF         -244.1700      -100.0000          .          
+r1.t14        -INF         -232.1700      -100.0000          .          
+r1.t15        -INF         -220.1700      -100.0000          .          
+r1.t16        -INF         -208.1700      -100.0000          .          
+r1.t17        -INF         -195.3400      -100.0000          .          
+r1.t18        -INF         -179.6700      -100.0000          .          
+r1.t19        -INF         -166.5000      -100.0000          .          
+r1.t20        -INF         -154.5000      -100.0000          .          
+r1.t21        -INF         -144.5000      -100.0000          .          
+r1.t22        -INF         -133.5000      -100.0000          .          
+r1.t23        -INF         -119.5000      -100.0000          .          
+r1.t24        -INF         -100.0000      -100.0000        -0.0028      
+r2.t1         -INF         -100.0000      -100.0000         EPS         
+r2.t2         -INF         -100.0000      -100.0000         EPS         
+r2.t3         -INF         -100.0000      -100.0000         EPS         
+r2.t4         -INF         -190.7100      -100.0000          .          
+r2.t5         -INF         -194.4700      -100.0000          .          
+r2.t6         -INF         -194.4700      -100.0000          .          
+r2.t7         -INF         -211.7900      -100.0000          .          
+r2.t8         -INF         -300.0000      -100.0000          .          
+r2.t9         -INF         -300.0000      -100.0000          .          
+r2.t10        -INF         -248.3300      -100.0000          .          
+r2.t11        -INF         -248.3300      -100.0000          .          
+r2.t12        -INF         -248.3300      -100.0000          .          
+r2.t13        -INF         -248.3300      -100.0000          .          
+r2.t14        -INF         -233.1600      -100.0000          .          
+r2.t15        -INF         -134.8300      -100.0000          .          
+r2.t16        -INF         -100.0000      -100.0000         EPS         
+r2.t17        -INF         -100.0000      -100.0000         EPS         
+r2.t18        -INF         -120.8800      -100.0000          .          
+r2.t19        -INF         -153.5000      -100.0000          .          
+r2.t20        -INF         -100.0000      -100.0000         EPS         
+r2.t21        -INF         -100.0000      -100.0000          .          
+r2.t22        -INF         -100.0000      -100.0000          .          
+r2.t23        -INF         -100.0000      -100.0000         EPS         
+r2.t24        -INF         -100.0000      -100.0000        -0.0044      
+r3.t1         -INF         -114.0000      -100.0000          .          
+r3.t2         -INF         -100.0000      -100.0000         EPS         
+r3.t3         -INF         -219.4000      -100.0000          .          
+r3.t4         -INF         -193.9000      -100.0000          .          
+r3.t5         -INF         -182.9000      -100.0000          .          
+r3.t6         -INF         -228.1100      -100.0000          .          
+r3.t7         -INF         -300.0000      -100.0000          .          
+r3.t8         -INF         -300.0000      -100.0000          .          
+r3.t9         -INF         -300.0000      -100.0000          .          
+r3.t10        -INF         -269.8300      -100.0000          .          
+r3.t11        -INF         -252.1600      -100.0000          .          
+r3.t12        -INF         -215.8300      -100.0000          .          
+r3.t13        -INF         -177.8300      -100.0000          .          
+r3.t14        -INF         -142.8300      -100.0000          .          
+r3.t15        -INF         -119.3300      -100.0000          .          
+r3.t16        -INF         -100.0000      -100.0000         EPS         
+r3.t17        -INF         -100.0000      -100.0000         EPS         
+r3.t18        -INF         -100.0000      -100.0000         EPS         
+r3.t19        -INF         -140.4600      -100.0000          .          
+r3.t20        -INF         -112.4600      -100.0000          .          
+r3.t21        -INF         -177.5000      -100.0000          .          
+r3.t22        -INF         -138.5000      -100.0000          .          
+r3.t23        -INF         -100.0000      -100.0000         EPS         
+r3.t24        -INF         -100.0000      -100.0000        -0.0044      
+r4.t1         -INF         -100.0000      -100.0000         EPS         
+r4.t2         -INF         -100.0000      -100.0000         EPS         
+r4.t3         -INF         -100.0000      -100.0000         EPS         
+r4.t4         -INF         -100.0000      -100.0000         EPS         
+r4.t5         -INF         -100.0000      -100.0000         EPS         
+r4.t6         -INF         -135.1600      -100.0000          .          
+r4.t7         -INF         -132.8300      -100.0000          .          
+r4.t8         -INF         -132.8300      -100.0000          .          
+r4.t9         -INF         -131.8300      -100.0000          .          
+r4.t10        -INF         -131.0000      -100.0000          .          
+r4.t11        -INF         -129.0000      -100.0000          .          
+r4.t12        -INF         -127.0000      -100.0000          .          
+r4.t13        -INF         -125.0000      -100.0000          .          
+r4.t14        -INF         -123.0000      -100.0000          .          
+r4.t15        -INF         -121.0000      -100.0000          .          
+r4.t16        -INF         -119.0000      -100.0000          .          
+r4.t17        -INF         -116.0000      -100.0000          .          
+r4.t18        -INF         -114.0000      -100.0000          .          
+r4.t19        -INF         -113.0000      -100.0000          .          
+r4.t20        -INF         -111.0000      -100.0000          .          
+r4.t21        -INF         -108.0000      -100.0000          .          
+r4.t22        -INF         -106.0000      -100.0000          .          
+r4.t23        -INF         -103.0000      -100.0000          .          
+r4.t24        -INF         -100.0000      -100.0000        -0.0028      
+
+---- EQU volumes_max  volumes max à chaque temps t et pour chaque réservoir r
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+r1.t1         -INF          115.5500       300.0000          .          
+r1.t2         -INF          159.1000       300.0000          .          
+r1.t3         -INF          300.0000       300.0000         EPS         
+r1.t4         -INF          296.3300       300.0000          .          
+r1.t5         -INF          300.0000       300.0000         EPS         
+r1.t6         -INF          299.1700       300.0000          .          
+r1.t7         -INF          291.6700       300.0000          .          
+r1.t8         -INF          288.6700       300.0000          .          
+r1.t9         -INF          285.6700       300.0000          .          
+r1.t10        -INF          283.6700       300.0000          .          
+r1.t11        -INF          270.1700       300.0000          .          
+r1.t12        -INF          256.1700       300.0000          .          
+r1.t13        -INF          244.1700       300.0000          .          
+r1.t14        -INF          232.1700       300.0000          .          
+r1.t15        -INF          220.1700       300.0000          .          
+r1.t16        -INF          208.1700       300.0000          .          
+r1.t17        -INF          195.3400       300.0000          .          
+r1.t18        -INF          179.6700       300.0000          .          
+r1.t19        -INF          166.5000       300.0000          .          
+r1.t20        -INF          154.5000       300.0000          .          
+r1.t21        -INF          144.5000       300.0000          .          
+r1.t22        -INF          133.5000       300.0000          .          
+r1.t23        -INF          119.5000       300.0000          .          
+r1.t24        -INF          100.0000       300.0000          .          
+r2.t1         -INF          100.0000       300.0000          .          
+r2.t2         -INF          100.0000       300.0000          .          
+r2.t3         -INF          100.0000       300.0000          .          
+r2.t4         -INF          190.7100       300.0000          .          
+r2.t5         -INF          194.4700       300.0000          .          
+r2.t6         -INF          194.4700       300.0000          .          
+r2.t7         -INF          211.7900       300.0000          .          
+r2.t8         -INF          300.0000       300.0000        -0.0016      
+r2.t9         -INF          300.0000       300.0000         EPS         
+r2.t10        -INF          248.3300       300.0000          .          
+r2.t11        -INF          248.3300       300.0000          .          
+r2.t12        -INF          248.3300       300.0000          .          
+r2.t13        -INF          248.3300       300.0000          .          
+r2.t14        -INF          233.1600       300.0000          .          
+r2.t15        -INF          134.8300       300.0000          .          
+r2.t16        -INF          100.0000       300.0000          .          
+r2.t17        -INF          100.0000       300.0000          .          
+r2.t18        -INF          120.8800       300.0000          .          
+r2.t19        -INF          153.5000       300.0000          .          
+r2.t20        -INF          100.0000       300.0000          .          
+r2.t21        -INF          100.0000       300.0000          .          
+r2.t22        -INF          100.0000       300.0000          .          
+r2.t23        -INF          100.0000       300.0000          .          
+r2.t24        -INF          100.0000       300.0000          .          
+r3.t1         -INF          114.0000       300.0000          .          
+r3.t2         -INF          100.0000       300.0000          .          
+r3.t3         -INF          219.4000       300.0000          .          
+r3.t4         -INF          193.9000       300.0000          .          
+r3.t5         -INF          182.9000       300.0000          .          
+r3.t6         -INF          228.1100       300.0000          .          
+r3.t7         -INF          300.0000       300.0000         EPS         
+r3.t8         -INF          300.0000       300.0000        -0.0016      
+r3.t9         -INF          300.0000       300.0000         EPS         
+r3.t10        -INF          269.8300       300.0000          .          
+r3.t11        -INF          252.1600       300.0000          .          
+r3.t12        -INF          215.8300       300.0000          .          
+r3.t13        -INF          177.8300       300.0000          .          
+r3.t14        -INF          142.8300       300.0000          .          
+r3.t15        -INF          119.3300       300.0000          .          
+r3.t16        -INF          100.0000       300.0000          .          
+r3.t17        -INF          100.0000       300.0000          .          
+r3.t18        -INF          100.0000       300.0000          .          
+r3.t19        -INF          140.4600       300.0000          .          
+r3.t20        -INF          112.4600       300.0000          .          
+r3.t21        -INF          177.5000       300.0000          .          
+r3.t22        -INF          138.5000       300.0000          .          
+r3.t23        -INF          100.0000       300.0000          .          
+r3.t24        -INF          100.0000       300.0000          .          
+r4.t1         -INF          100.0000       300.0000          .          
+r4.t2         -INF          100.0000       300.0000          .          
+r4.t3         -INF          100.0000       300.0000          .          
+r4.t4         -INF          100.0000       300.0000          .          
+r4.t5         -INF          100.0000       300.0000          .          
+r4.t6         -INF          135.1600       300.0000          .          
+r4.t7         -INF          132.8300       300.0000          .          
+r4.t8         -INF          132.8300       300.0000          .          
+r4.t9         -INF          131.8300       300.0000          .          
+r4.t10        -INF          131.0000       300.0000          .          
+r4.t11        -INF          129.0000       300.0000          .          
+r4.t12        -INF          127.0000       300.0000          .          
+r4.t13        -INF          125.0000       300.0000          .          
+r4.t14        -INF          123.0000       300.0000          .          
+r4.t15        -INF          121.0000       300.0000          .          
+r4.t16        -INF          119.0000       300.0000          .          
+r4.t17        -INF          116.0000       300.0000          .          
+r4.t18        -INF          114.0000       300.0000          .          
+r4.t19        -INF          113.0000       300.0000          .          
+r4.t20        -INF          111.0000       300.0000          .          
+r4.t21        -INF          108.0000       300.0000          .          
+r4.t22        -INF          106.0000       300.0000          .          
+r4.t23        -INF          103.0000       300.0000          .          
+r4.t24        -INF          100.0000       300.0000          .          
+
+---- EQU demandes_t1  demandes pour t1 et pour chaque réservoir r
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+r1       -90.1700       -90.1700       -90.1700         0.0028      
+r2       -55.1700       -55.1700       -55.1700         0.0028      
+r3       -86.0000       -86.0000       -86.0000         0.0028      
+r4       -99.0000       -99.0000       -99.0000         0.0028      
+
+---- EQU demandes  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+r1.t2          9.8300         9.8300         9.8300         0.0028      
+r1.t3          5.0000         5.0000         5.0000         0.0028      
+r1.t4          3.6700         3.6700         3.6700         0.0028      
+r1.t5          6.5000         6.5000         6.5000         0.0028      
+r1.t6          5.6700         5.6700         5.6700         0.0028      
+r1.t7          7.5000         7.5000         7.5000         0.0028      
+r1.t8          3.0000         3.0000         3.0000         0.0028      
+r1.t9          3.0000         3.0000         3.0000         0.0028      
+r1.t10         2.0000         2.0000         2.0000         0.0028      
+r1.t11        13.5000        13.5000        13.5000         0.0028      
+r1.t12        14.0000        14.0000        14.0000         0.0028      
+r1.t13        12.0000        12.0000        12.0000         0.0028      
+r1.t14        12.0000        12.0000        12.0000         0.0028      
+r1.t15        12.0000        12.0000        12.0000         0.0028      
+r1.t16        12.0000        12.0000        12.0000         0.0028      
+r1.t17        12.8300        12.8300        12.8300         0.0028      
+r1.t18        15.6700        15.6700        15.6700         0.0028      
+r1.t19        13.1700        13.1700        13.1700         0.0028      
+r1.t20        12.0000        12.0000        12.0000         0.0028      
+r1.t21        10.0000        10.0000        10.0000         0.0028      
+r1.t22        11.0000        11.0000        11.0000         0.0028      
+r1.t23        14.0000        14.0000        14.0000         0.0028      
+r1.t24        19.5000        19.5000        19.5000         0.0028      
+r2.t2         44.8300        44.8300        44.8300         0.0028      
+r2.t3         18.0000        18.0000        18.0000         0.0028      
+r2.t4           .              .              .             0.0028      
+r2.t5           .              .              .             0.0028      
+r2.t6           .              .              .             0.0028      
+r2.t7           .              .              .             0.0028      
+r2.t8           .              .              .             0.0028      
+r2.t9         45.0000        45.0000        45.0000         0.0044      
+r2.t10        51.6700        51.6700        51.6700         0.0044      
+r2.t11          .              .              .             0.0044      
+r2.t12          .              .              .             0.0044      
+r2.t13          .              .              .             0.0044      
+r2.t14        15.1700        15.1700        15.1700         0.0044      
+r2.t15       103.8300       103.8300       103.8300         0.0044      
+r2.t16        34.8300        34.8300        34.8300         0.0044      
+r2.t17        43.8300        43.8300        43.8300         0.0044      
+r2.t18        54.8300        54.8300        54.8300         0.0044      
+r2.t19        51.1700        51.1700        51.1700         0.0044      
+r2.t20        53.5000        53.5000        53.5000         0.0044      
+r2.t21         0.6700         0.6700         0.6700         0.0044      
+r2.t22          .              .              .             0.0044      
+r2.t23          .              .              .             0.0044      
+r2.t24         1.5000         1.5000         1.5000         0.0044      
+r3.t2         14.0000        14.0000        14.0000         0.0028      
+r3.t3         13.3300        13.3300        13.3300         0.0028      
+r3.t4         25.5000        25.5000        25.5000         0.0028      
+r3.t5         11.0000        11.0000        11.0000         0.0028      
+r3.t6         10.0000        10.0000        10.0000         0.0028      
+r3.t7         10.0000        10.0000        10.0000         0.0028      
+r3.t8         11.0000        11.0000        11.0000         0.0028      
+r3.t9         10.3300        10.3300        10.3300         0.0044      
+r3.t10        30.1700        30.1700        30.1700         0.0044      
+r3.t11        17.6700        17.6700        17.6700         0.0044      
+r3.t12        36.3300        36.3300        36.3300         0.0044      
+r3.t13        38.0000        38.0000        38.0000         0.0044      
+r3.t14        35.0000        35.0000        35.0000         0.0044      
+r3.t15        35.1700        35.1700        35.1700         0.0044      
+r3.t16        19.3300        19.3300        19.3300         0.0044      
+r3.t17        31.8300        31.8300        31.8300         0.0044      
+r3.t18        23.5000        23.5000        23.5000         0.0044      
+r3.t19        16.8300        16.8300        16.8300         0.0044      
+r3.t20        28.0000        28.0000        28.0000         0.0044      
+r3.t21        33.5000        33.5000        33.5000         0.0044      
+r3.t22        39.0000        39.0000        39.0000         0.0044      
+r3.t23        38.5000        38.5000        38.5000         0.0044      
+r3.t24        32.6700        32.6700        32.6700         0.0044      
+r4.t2          1.0000         1.0000         1.0000         0.0028      
+r4.t3          1.0000         1.0000         1.0000         0.0028      
+r4.t4          8.5000         8.5000         8.5000         0.0028      
+r4.t5          9.5000         9.5000         9.5000         0.0028      
+r4.t6          4.0000         4.0000         4.0000         0.0028      
+r4.t7          2.3300         2.3300         2.3300         0.0028      
+r4.t8           .              .              .             0.0028      
+r4.t9          1.0000         1.0000         1.0000         0.0028      
+r4.t10         0.8300         0.8300         0.8300         0.0028      
+r4.t11         2.0000         2.0000         2.0000         0.0028      
+r4.t12         2.0000         2.0000         2.0000         0.0028      
+r4.t13         2.0000         2.0000         2.0000         0.0028      
+r4.t14         2.0000         2.0000         2.0000         0.0028      
+r4.t15         2.0000         2.0000         2.0000         0.0028      
+r4.t16         2.0000         2.0000         2.0000         0.0028      
+r4.t17         3.0000         3.0000         3.0000         0.0028      
+r4.t18         2.0000         2.0000         2.0000         0.0028      
+r4.t19         1.0000         1.0000         1.0000         0.0028      
+r4.t20         2.0000         2.0000         2.0000         0.0028      
+r4.t21         3.0000         3.0000         3.0000         0.0028      
+r4.t22         2.0000         2.0000         2.0000         0.0028      
+r4.t23         3.0000         3.0000         3.0000         0.0028      
+r4.t24         3.0000         3.0000         3.0000         0.0028      
+
+---- EQU debits_min  débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1         -INF          -99.2100          .              .          
+small.p1.t2         -INF             .              .              .          
+small.p1.t3         -INF          -99.2100          .              .          
+small.p1.t4         -INF             .              .              .          
+small.p1.t5         -INF             .              .              .          
+small.p1.t6         -INF             .              .              .          
+small.p1.t7         -INF             .              .              .          
+small.p1.t8         -INF             .              .              .          
+small.p1.t9         -INF             .              .              .          
+small.p1.t10        -INF             .              .              .          
+small.p1.t11        -INF             .              .              .          
+small.p1.t12        -INF             .              .              .          
+small.p1.t13        -INF             .              .              .          
+small.p1.t14        -INF             .              .              .          
+small.p1.t15        -INF             .              .              .          
+small.p1.t16        -INF             .              .              .          
+small.p1.t17        -INF             .              .              .          
+small.p1.t18        -INF          -99.2100          .              .          
+small.p1.t19        -INF             .              .              .          
+small.p1.t20        -INF             .              .              .          
+small.p1.t21        -INF             .              .              .          
+small.p1.t22        -INF             .              .              .          
+small.p1.t23        -INF             .              .              .          
+small.p1.t24        -INF             .              .              .          
+small.p2.t1         -INF             .              .              .          
+small.p2.t2         -INF          -99.2100          .              .          
+small.p2.t3         -INF          -99.2100          .              .          
+small.p2.t4         -INF             .              .              .          
+small.p2.t5         -INF          -23.4300          .              .          
+small.p2.t6         -INF             .              .              .          
+small.p2.t7         -INF          -99.2100          .              .          
+small.p2.t8         -INF             .              .              .          
+small.p2.t9         -INF          -55.3300          .              .          
+small.p2.t10        -INF             .              .              .          
+small.p2.t11        -INF             .              .              .          
+small.p2.t12        -INF             .              .              .          
+small.p2.t13        -INF             .              .              .          
+small.p2.t14        -INF             .              .              .          
+small.p2.t15        -INF          -17.1700          .              .          
+small.p2.t16        -INF             .              .              .          
+small.p2.t17        -INF             .              .              .          
+small.p2.t18        -INF             .              .              .          
+small.p2.t19        -INF          -99.2100          .              .          
+small.p2.t20        -INF             .              .              .          
+small.p2.t21        -INF             .              .              .          
+small.p2.t22        -INF             .              .              .          
+small.p2.t23        -INF             .              .              .          
+small.p2.t24        -INF          -34.1700          .              .          
+small.p3.t1         -INF             .              .              .          
+small.p3.t2         -INF             .              .              .          
+small.p3.t3         -INF          -99.2100          .              .          
+small.p3.t4         -INF          -99.2100          .              .          
+small.p3.t5         -INF             .              .              .          
+small.p3.t6         -INF          -99.2100          .              .          
+small.p3.t7         -INF             .              .              .          
+small.p3.t8         -INF          -99.2100          .              .          
+small.p3.t9         -INF             .              .              .          
+small.p3.t10        -INF             .              .              .          
+small.p3.t11        -INF             .              .              .          
+small.p3.t12        -INF             .              .              .          
+small.p3.t13        -INF             .              .              .          
+small.p3.t14        -INF             .              .              .          
+small.p3.t15        -INF             .              .              .          
+small.p3.t16        -INF             .              .              .          
+small.p3.t17        -INF          -75.6600          .              .          
+small.p3.t18        -INF             .              .              .          
+small.p3.t19        -INF          -41.8700          .              .          
+small.p3.t20        -INF             .              .              .          
+small.p3.t21        -INF          -99.2100          .              .          
+small.p3.t22        -INF             .              .              .          
+small.p3.t23        -INF             .              .              .          
+small.p3.t24        -INF             .              .              .          
+
+---- EQU debits_max  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1         -INF             .              .             EPS         
+small.p1.t2         -INF             .              .            -0.0028      
+small.p1.t3         -INF             .              .             EPS         
+small.p1.t4         -INF             .              .            -0.0028      
+small.p1.t5         -INF             .              .            -0.0028      
+small.p1.t6         -INF             .              .            -0.0028      
+small.p1.t7         -INF             .              .            -0.0028      
+small.p1.t8         -INF             .              .            -0.0028      
+small.p1.t9         -INF             .              .            -0.0044      
+small.p1.t10        -INF             .              .            -0.0044      
+small.p1.t11        -INF             .              .            -0.0044      
+small.p1.t12        -INF             .              .            -0.0044      
+small.p1.t13        -INF             .              .            -0.0044      
+small.p1.t14        -INF             .              .            -0.0044      
+small.p1.t15        -INF             .              .            -0.0044      
+small.p1.t16        -INF             .              .            -0.0044      
+small.p1.t17        -INF             .              .            -0.0044      
+small.p1.t18        -INF             .              .             EPS         
+small.p1.t19        -INF             .              .            -0.0044      
+small.p1.t20        -INF             .              .            -0.0044      
+small.p1.t21        -INF             .              .            -0.0044      
+small.p1.t22        -INF             .              .            -0.0044      
+small.p1.t23        -INF             .              .            -0.0044      
+small.p1.t24        -INF             .              .            -0.0044      
+small.p2.t1         -INF             .              .            -0.0028      
+small.p2.t2         -INF             .              .             EPS         
+small.p2.t3         -INF             .              .             EPS         
+small.p2.t4         -INF             .              .            -0.0028      
+small.p2.t5         -INF          -75.7800          .              .          
+small.p2.t6         -INF             .              .            -0.0028      
+small.p2.t7         -INF             .              .             EPS         
+small.p2.t8         -INF             .              .            -0.0028      
+small.p2.t9         -INF          -43.8800          .              .          
+small.p2.t10        -INF             .              .            -0.0044      
+small.p2.t11        -INF             .              .            -0.0044      
+small.p2.t12        -INF             .              .            -0.0044      
+small.p2.t13        -INF             .              .            -0.0044      
+small.p2.t14        -INF             .              .            -0.0044      
+small.p2.t15        -INF          -82.0400          .              .          
+small.p2.t16        -INF             .              .            -0.0044      
+small.p2.t17        -INF             .              .            -0.0044      
+small.p2.t18        -INF             .              .            -0.0044      
+small.p2.t19        -INF             .              .             EPS         
+small.p2.t20        -INF             .              .            -0.0044      
+small.p2.t21        -INF             .              .            -0.0044      
+small.p2.t22        -INF             .              .            -0.0044      
+small.p2.t23        -INF             .              .            -0.0044      
+small.p2.t24        -INF          -65.0400          .              .          
+small.p3.t1         -INF             .              .            -0.0028      
+small.p3.t2         -INF             .              .            -0.0028      
+small.p3.t3         -INF             .              .             EPS         
+small.p3.t4         -INF             .              .             EPS         
+small.p3.t5         -INF             .              .            -0.0028      
+small.p3.t6         -INF             .              .             EPS         
+small.p3.t7         -INF             .              .            -0.0028      
+small.p3.t8         -INF             .              .             EPS         
+small.p3.t9         -INF             .              .            -0.0044      
+small.p3.t10        -INF             .              .            -0.0044      
+small.p3.t11        -INF             .              .            -0.0044      
+small.p3.t12        -INF             .              .            -0.0044      
+small.p3.t13        -INF             .              .            -0.0044      
+small.p3.t14        -INF             .              .            -0.0044      
+small.p3.t15        -INF             .              .            -0.0044      
+small.p3.t16        -INF             .              .            -0.0044      
+small.p3.t17        -INF          -23.5500          .              .          
+small.p3.t18        -INF             .              .            -0.0044      
+small.p3.t19        -INF          -57.3400          .              .          
+small.p3.t20        -INF             .              .            -0.0044      
+small.p3.t21        -INF             .              .             EPS         
+small.p3.t22        -INF             .              .            -0.0044      
+small.p3.t23        -INF             .              .            -0.0044      
+small.p3.t24        -INF             .              .            -0.0044      
+
+---- EQU puissances  puissances de chaque pompe à chaque temps t et pour chaque pompe k
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1           .              .              .             0.0292      
+small.p1.t2           .              .              .              .          
+small.p1.t3           .              .              .             0.0292      
+small.p1.t4           .              .              .              .          
+small.p1.t5           .              .              .              .          
+small.p1.t6           .              .              .              .          
+small.p1.t7           .              .              .              .          
+small.p1.t8           .              .              .              .          
+small.p1.t9           .              .              .              .          
+small.p1.t10          .              .              .              .          
+small.p1.t11          .              .              .              .          
+small.p1.t12          .              .              .              .          
+small.p1.t13          .              .              .              .          
+small.p1.t14          .              .              .              .          
+small.p1.t15          .              .              .              .          
+small.p1.t16          .              .              .              .          
+small.p1.t17          .              .              .              .          
+small.p1.t18          .              .              .             0.0461      
+small.p1.t19          .              .              .              .          
+small.p1.t20          .              .              .              .          
+small.p1.t21          .              .              .              .          
+small.p1.t22          .              .              .              .          
+small.p1.t23          .              .              .              .          
+small.p1.t24          .              .              .              .          
+small.p2.t1           .              .              .              .          
+small.p2.t2           .              .              .             0.0292      
+small.p2.t3           .              .              .             0.0292      
+small.p2.t4           .              .              .              .          
+small.p2.t5           .              .              .             0.0292      
+small.p2.t6           .              .              .              .          
+small.p2.t7           .              .              .             0.0292      
+small.p2.t8           .              .              .              .          
+small.p2.t9           .              .              .             0.0461      
+small.p2.t10          .              .              .              .          
+small.p2.t11          .              .              .              .          
+small.p2.t12          .              .              .              .          
+small.p2.t13          .              .              .              .          
+small.p2.t14          .              .              .              .          
+small.p2.t15          .              .              .             0.0461      
+small.p2.t16          .              .              .              .          
+small.p2.t17          .              .              .              .          
+small.p2.t18          .              .              .              .          
+small.p2.t19          .              .              .             0.0461      
+small.p2.t20          .              .              .              .          
+small.p2.t21          .              .              .              .          
+small.p2.t22          .              .              .              .          
+small.p2.t23          .              .              .              .          
+small.p2.t24          .              .              .             0.0461      
+small.p3.t1           .              .              .              .          
+small.p3.t2           .              .              .              .          
+small.p3.t3           .              .              .             0.0292      
+small.p3.t4           .              .              .             0.0292      
+small.p3.t5           .              .              .              .          
+small.p3.t6           .              .              .             0.0292      
+small.p3.t7           .              .              .              .          
+small.p3.t8           .              .              .             0.0292      
+small.p3.t9           .              .              .              .          
+small.p3.t10          .              .              .              .          
+small.p3.t11          .              .              .              .          
+small.p3.t12          .              .              .              .          
+small.p3.t13          .              .              .              .          
+small.p3.t14          .              .              .              .          
+small.p3.t15          .              .              .              .          
+small.p3.t16          .              .              .              .          
+small.p3.t17          .              .              .             0.0461      
+small.p3.t18          .              .              .              .          
+small.p3.t19          .              .              .             0.0461      
+small.p3.t20          .              .              .              .          
+small.p3.t21          .              .              .             0.0461      
+small.p3.t22          .              .              .              .          
+small.p3.t23          .              .              .              .          
+small.p3.t24          .              .              .              .          
+
+---- VAR qkt  Débit d_eau pompé par la pompe k à la période t
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1           .            99.2100        +INF             .          
+small.p1.t2           .              .            +INF             .          
+small.p1.t3           .            99.2100        +INF             .          
+small.p1.t4           .              .            +INF             .          
+small.p1.t5           .              .            +INF             .          
+small.p1.t6           .              .            +INF             .          
+small.p1.t7           .              .            +INF             .          
+small.p1.t8           .              .            +INF             .          
+small.p1.t9           .              .            +INF             .          
+small.p1.t10          .              .            +INF             .          
+small.p1.t11          .              .            +INF             .          
+small.p1.t12          .              .            +INF             .          
+small.p1.t13          .              .            +INF             .          
+small.p1.t14          .              .            +INF             .          
+small.p1.t15          .              .            +INF             .          
+small.p1.t16          .              .            +INF             .          
+small.p1.t17          .              .            +INF             .          
+small.p1.t18          .            99.2100        +INF             .          
+small.p1.t19          .              .            +INF             .          
+small.p1.t20          .              .            +INF             .          
+small.p1.t21          .              .            +INF             .          
+small.p1.t22          .              .            +INF             .          
+small.p1.t23          .              .            +INF             .          
+small.p1.t24          .              .            +INF             .          
+small.p2.t1           .              .            +INF             .          
+small.p2.t2           .            99.2100        +INF             .          
+small.p2.t3           .            99.2100        +INF             .          
+small.p2.t4           .              .            +INF             .          
+small.p2.t5           .            23.4300        +INF             .          
+small.p2.t6           .              .            +INF             .          
+small.p2.t7           .            99.2100        +INF             .          
+small.p2.t8           .              .            +INF             .          
+small.p2.t9           .            55.3300        +INF             .          
+small.p2.t10          .              .            +INF             .          
+small.p2.t11          .              .            +INF             .          
+small.p2.t12          .              .            +INF             .          
+small.p2.t13          .              .            +INF             .          
+small.p2.t14          .              .            +INF             .          
+small.p2.t15          .            17.1700        +INF             .          
+small.p2.t16          .              .            +INF             .          
+small.p2.t17          .              .            +INF             .          
+small.p2.t18          .              .            +INF             .          
+small.p2.t19          .            99.2100        +INF             .          
+small.p2.t20          .              .            +INF             .          
+small.p2.t21          .              .            +INF             .          
+small.p2.t22          .              .            +INF             .          
+small.p2.t23          .              .            +INF             .          
+small.p2.t24          .            34.1700        +INF             .          
+small.p3.t1           .              .            +INF             .          
+small.p3.t2           .              .            +INF             .          
+small.p3.t3           .            99.2100        +INF             .          
+small.p3.t4           .            99.2100        +INF             .          
+small.p3.t5           .              .            +INF             .          
+small.p3.t6           .            99.2100        +INF             .          
+small.p3.t7           .              .            +INF             .          
+small.p3.t8           .            99.2100        +INF             .          
+small.p3.t9           .              .            +INF             .          
+small.p3.t10          .              .            +INF             .          
+small.p3.t11          .              .            +INF             .          
+small.p3.t12          .              .            +INF             .          
+small.p3.t13          .              .            +INF             .          
+small.p3.t14          .              .            +INF             .          
+small.p3.t15          .              .            +INF             .          
+small.p3.t16          .              .            +INF             .          
+small.p3.t17          .            75.6600        +INF             .          
+small.p3.t18          .              .            +INF             .          
+small.p3.t19          .            41.8700        +INF             .          
+small.p3.t20          .              .            +INF             .          
+small.p3.t21          .            99.2100        +INF             .          
+small.p3.t22          .              .            +INF             .          
+small.p3.t23          .              .            +INF             .          
+small.p3.t24          .              .            +INF             .          
+
+---- VAR qrt  Débit entrant dans chaque réservoir r à la période t
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+r1.t1           .            25.3800        +INF             .          
+r1.t2           .            53.3800        +INF             .          
+r1.t3           .           145.9000        +INF             .          
+r1.t4           .              .            +INF            EPS         
+r1.t5           .            10.1700        +INF             .          
+r1.t6           .             4.8400        +INF             .          
+r1.t7           .              .            +INF            EPS         
+r1.t8           .              .            +INF            EPS         
+r1.t9           .              .            +INF            0.0016      
+r1.t10          .              .            +INF            0.0016      
+r1.t11          .              .            +INF            0.0016      
+r1.t12          .              .            +INF            0.0016      
+r1.t13          .              .            +INF            0.0016      
+r1.t14          .              .            +INF            0.0016      
+r1.t15          .              .            +INF            0.0016      
+r1.t16          .              .            +INF            0.0016      
+r1.t17          .              .            +INF            0.0016      
+r1.t18          .              .            +INF            0.0016      
+r1.t19          .              .            +INF            0.0016      
+r1.t20          .              .            +INF            0.0016      
+r1.t21          .              .            +INF            0.0016      
+r1.t22          .              .            +INF            0.0016      
+r1.t23          .              .            +INF            0.0016      
+r1.t24          .              .            +INF            0.0016      
+r2.t1           .            44.8300        +INF             .          
+r2.t2           .            44.8300        +INF             .          
+r2.t3           .            18.0000        +INF             .          
+r2.t4           .            90.7100        +INF             .          
+r2.t5           .             3.7600        +INF             .          
+r2.t6           .              .            +INF            EPS         
+r2.t7           .            17.3200        +INF             .          
+r2.t8           .            88.2100        +INF             .          
+r2.t9           .            45.0000        +INF             .          
+r2.t10          .              .            +INF             .          
+r2.t11          .              .            +INF             .          
+r2.t12          .              .            +INF             .          
+r2.t13          .              .            +INF             .          
+r2.t14          .              .            +INF             .          
+r2.t15          .             5.5000        +INF             .          
+r2.t16          .              .            +INF             .          
+r2.t17          .            43.8300        +INF             .          
+r2.t18          .            75.7100        +INF             .          
+r2.t19          .            83.7900        +INF             .          
+r2.t20          .              .            +INF             .          
+r2.t21          .             0.6700        +INF             .          
+r2.t22          .              .            +INF             .          
+r2.t23          .              .            +INF             .          
+r2.t24          .             1.5000        +INF             .          
+r3.t1           .            28.0000        +INF             .          
+r3.t2           .              .            +INF            EPS         
+r3.t3           .           132.7300        +INF             .          
+r3.t4           .              .            +INF            EPS         
+r3.t5           .              .            +INF            EPS         
+r3.t6           .            55.2100        +INF             .          
+r3.t7           .            81.8900        +INF             .          
+r3.t8           .            11.0000        +INF             .          
+r3.t9           .            10.3300        +INF             .          
+r3.t10          .              .            +INF            EPS         
+r3.t11          .              .            +INF            EPS         
+r3.t12          .              .            +INF            EPS         
+r3.t13          .              .            +INF            EPS         
+r3.t14          .              .            +INF            EPS         
+r3.t15          .            11.6700        +INF             .          
+r3.t16          .              .            +INF            EPS         
+r3.t17          .            31.8300        +INF             .          
+r3.t18          .            23.5000        +INF             .          
+r3.t19          .            57.2900        +INF             .          
+r3.t20          .              .            +INF            EPS         
+r3.t21          .            98.5400        +INF             .          
+r3.t22          .              .            +INF            EPS         
+r3.t23          .              .            +INF            EPS         
+r3.t24          .            32.6700        +INF             .          
+r4.t1           .             1.0000        +INF             .          
+r4.t2           .             1.0000        +INF             .          
+r4.t3           .             1.0000        +INF             .          
+r4.t4           .             8.5000        +INF             .          
+r4.t5           .             9.5000        +INF             .          
+r4.t6           .            39.1600        +INF             .          
+r4.t7           .              .            +INF            EPS         
+r4.t8           .              .            +INF            EPS         
+r4.t9           .              .            +INF            0.0016      
+r4.t10          .              .            +INF            0.0016      
+r4.t11          .              .            +INF            0.0016      
+r4.t12          .              .            +INF            0.0016      
+r4.t13          .              .            +INF            0.0016      
+r4.t14          .              .            +INF            0.0016      
+r4.t15          .              .            +INF            0.0016      
+r4.t16          .              .            +INF            0.0016      
+r4.t17          .              .            +INF            0.0016      
+r4.t18          .              .            +INF            0.0016      
+r4.t19          .              .            +INF            0.0016      
+r4.t20          .              .            +INF            0.0016      
+r4.t21          .              .            +INF            0.0016      
+r4.t22          .              .            +INF            0.0016      
+r4.t23          .              .            +INF            0.0016      
+r4.t24          .              .            +INF            0.0016      
+
+---- VAR vrt  Volume d_eau dans les réservoirs r à la période t
+
+              LOWER          LEVEL          UPPER         MARGINAL
+
+r1.t1           .           115.5500        +INF             .          
+r1.t2           .           159.1000        +INF             .          
+r1.t3           .           300.0000        +INF             .          
+r1.t4           .           296.3300        +INF             .          
+r1.t5           .           300.0000        +INF             .          
+r1.t6           .           299.1700        +INF             .          
+r1.t7           .           291.6700        +INF             .          
+r1.t8           .           288.6700        +INF             .          
+r1.t9           .           285.6700        +INF             .          
+r1.t10          .           283.6700        +INF             .          
+r1.t11          .           270.1700        +INF             .          
+r1.t12          .           256.1700        +INF             .          
+r1.t13          .           244.1700        +INF             .          
+r1.t14          .           232.1700        +INF             .          
+r1.t15          .           220.1700        +INF             .          
+r1.t16          .           208.1700        +INF             .          
+r1.t17          .           195.3400        +INF             .          
+r1.t18          .           179.6700        +INF             .          
+r1.t19          .           166.5000        +INF             .          
+r1.t20          .           154.5000        +INF             .          
+r1.t21          .           144.5000        +INF             .          
+r1.t22          .           133.5000        +INF             .          
+r1.t23          .           119.5000        +INF             .          
+r1.t24          .           100.0000        +INF             .          
+r2.t1           .           100.0000        +INF             .          
+r2.t2           .           100.0000        +INF             .          
+r2.t3           .           100.0000        +INF             .          
+r2.t4           .           190.7100        +INF             .          
+r2.t5           .           194.4700        +INF             .          
+r2.t6           .           194.4700        +INF             .          
+r2.t7           .           211.7900        +INF             .          
+r2.t8           .           300.0000        +INF             .          
+r2.t9           .           300.0000        +INF             .          
+r2.t10          .           248.3300        +INF             .          
+r2.t11          .           248.3300        +INF             .          
+r2.t12          .           248.3300        +INF             .          
+r2.t13          .           248.3300        +INF             .          
+r2.t14          .           233.1600        +INF             .          
+r2.t15          .           134.8300        +INF             .          
+r2.t16          .           100.0000        +INF             .          
+r2.t17          .           100.0000        +INF             .          
+r2.t18          .           120.8800        +INF             .          
+r2.t19          .           153.5000        +INF             .          
+r2.t20          .           100.0000        +INF             .          
+r2.t21          .           100.0000        +INF             .          
+r2.t22          .           100.0000        +INF             .          
+r2.t23          .           100.0000        +INF             .          
+r2.t24          .           100.0000        +INF             .          
+r3.t1           .           114.0000        +INF             .          
+r3.t2           .           100.0000        +INF             .          
+r3.t3           .           219.4000        +INF             .          
+r3.t4           .           193.9000        +INF             .          
+r3.t5           .           182.9000        +INF             .          
+r3.t6           .           228.1100        +INF             .          
+r3.t7           .           300.0000        +INF             .          
+r3.t8           .           300.0000        +INF             .          
+r3.t9           .           300.0000        +INF             .          
+r3.t10          .           269.8300        +INF             .          
+r3.t11          .           252.1600        +INF             .          
+r3.t12          .           215.8300        +INF             .          
+r3.t13          .           177.8300        +INF             .          
+r3.t14          .           142.8300        +INF             .          
+r3.t15          .           119.3300        +INF             .          
+r3.t16          .           100.0000        +INF             .          
+r3.t17          .           100.0000        +INF             .          
+r3.t18          .           100.0000        +INF             .          
+r3.t19          .           140.4600        +INF             .          
+r3.t20          .           112.4600        +INF             .          
+r3.t21          .           177.5000        +INF             .          
+r3.t22          .           138.5000        +INF             .          
+r3.t23          .           100.0000        +INF             .          
+r3.t24          .           100.0000        +INF             .          
+r4.t1           .           100.0000        +INF             .          
+r4.t2           .           100.0000        +INF             .          
+r4.t3           .           100.0000        +INF             .          
+r4.t4           .           100.0000        +INF             .          
+r4.t5           .           100.0000        +INF             .          
+r4.t6           .           135.1600        +INF             .          
+r4.t7           .           132.8300        +INF             .          
+r4.t8           .           132.8300        +INF             .          
+r4.t9           .           131.8300        +INF             .          
+r4.t10          .           131.0000        +INF             .          
+r4.t11          .           129.0000        +INF             .          
+r4.t12          .           127.0000        +INF             .          
+r4.t13          .           125.0000        +INF             .          
+r4.t14          .           123.0000        +INF             .          
+r4.t15          .           121.0000        +INF             .          
+r4.t16          .           119.0000        +INF             .          
+r4.t17          .           116.0000        +INF             .          
+r4.t18          .           114.0000        +INF             .          
+r4.t19          .           113.0000        +INF             .          
+r4.t20          .           111.0000        +INF             .          
+r4.t21          .           108.0000        +INF             .          
+r4.t22          .           106.0000        +INF             .          
+r4.t23          .           103.0000        +INF             .          
+r4.t24          .           100.0000        +INF             .          
+
+---- VAR pkt  Puissance de la pompe k à la période t
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1           .            13.3620        +INF             .          
+small.p1.t2           .              .            +INF            0.0292      
+small.p1.t3           .            13.3620        +INF             .          
+small.p1.t4           .              .            +INF            0.0292      
+small.p1.t5           .              .            +INF            0.0292      
+small.p1.t6           .              .            +INF            0.0292      
+small.p1.t7           .              .            +INF            0.0292      
+small.p1.t8           .              .            +INF            0.0292      
+small.p1.t9           .              .            +INF            0.0461      
+small.p1.t10          .              .            +INF            0.0461      
+small.p1.t11          .              .            +INF            0.0461      
+small.p1.t12          .              .            +INF            0.0461      
+small.p1.t13          .              .            +INF            0.0461      
+small.p1.t14          .              .            +INF            0.0461      
+small.p1.t15          .              .            +INF            0.0461      
+small.p1.t16          .              .            +INF            0.0461      
+small.p1.t17          .              .            +INF            0.0461      
+small.p1.t18          .            13.3620        +INF             .          
+small.p1.t19          .              .            +INF            0.0461      
+small.p1.t20          .              .            +INF            0.0461      
+small.p1.t21          .              .            +INF            0.0461      
+small.p1.t22          .              .            +INF            0.0461      
+small.p1.t23          .              .            +INF            0.0461      
+small.p1.t24          .              .            +INF            0.0461      
+small.p2.t1           .              .            +INF            0.0292      
+small.p2.t2           .            13.3620        +INF             .          
+small.p2.t3           .            13.3620        +INF             .          
+small.p2.t4           .              .            +INF            0.0292      
+small.p2.t5           .             6.0666        +INF             .          
+small.p2.t6           .              .            +INF            0.0292      
+small.p2.t7           .            13.3620        +INF             .          
+small.p2.t8           .              .            +INF            0.0292      
+small.p2.t9           .             9.1376        +INF             .          
+small.p2.t10          .              .            +INF            0.0461      
+small.p2.t11          .              .            +INF            0.0461      
+small.p2.t12          .              .            +INF            0.0461      
+small.p2.t13          .              .            +INF            0.0461      
+small.p2.t14          .              .            +INF            0.0461      
+small.p2.t15          .             5.4640        +INF             .          
+small.p2.t16          .              .            +INF            0.0461      
+small.p2.t17          .              .            +INF            0.0461      
+small.p2.t18          .              .            +INF            0.0461      
+small.p2.t19          .            13.3620        +INF             .          
+small.p2.t20          .              .            +INF            0.0461      
+small.p2.t21          .              .            +INF            0.0461      
+small.p2.t22          .              .            +INF            0.0461      
+small.p2.t23          .              .            +INF            0.0461      
+small.p2.t24          .             7.1006        +INF             .          
+small.p3.t1           .              .            +INF            0.0292      
+small.p3.t2           .              .            +INF            0.0292      
+small.p3.t3           .            13.3620        +INF             .          
+small.p3.t4           .            13.3620        +INF             .          
+small.p3.t5           .              .            +INF            0.0292      
+small.p3.t6           .            13.3620        +INF             .          
+small.p3.t7           .              .            +INF            0.0292      
+small.p3.t8           .            13.3620        +INF             .          
+small.p3.t9           .              .            +INF            0.0461      
+small.p3.t10          .              .            +INF            0.0461      
+small.p3.t11          .              .            +INF            0.0461      
+small.p3.t12          .              .            +INF            0.0461      
+small.p3.t13          .              .            +INF            0.0461      
+small.p3.t14          .              .            +INF            0.0461      
+small.p3.t15          .              .            +INF            0.0461      
+small.p3.t16          .              .            +INF            0.0461      
+small.p3.t17          .            11.0948        +INF             .          
+small.p3.t18          .              .            +INF            0.0461      
+small.p3.t19          .             7.8418        +INF             .          
+small.p3.t20          .              .            +INF            0.0461      
+small.p3.t21          .            13.3620        +INF             .          
+small.p3.t22          .              .            +INF            0.0461      
+small.p3.t23          .              .            +INF            0.0461      
+small.p3.t24          .              .            +INF            0.0461      
+
+---- VAR xkt  Pompe k allumé à la période t
+
+                    LOWER          LEVEL          UPPER         MARGINAL
+
+small.p1.t1           .             1.0000         1.0000         0.1111      
+small.p1.t2           .              .             1.0000        -0.2785      
+small.p1.t3           .             1.0000         1.0000         0.1111      
+small.p1.t4           .              .             1.0000        -0.2785      
+small.p1.t5           .              .             1.0000        -0.2785      
+small.p1.t6           .              .             1.0000        -0.2785      
+small.p1.t7           .              .             1.0000        -0.2785      
+small.p1.t8           .              .             1.0000        -0.2785      
+small.p1.t9           .              .             1.0000        -0.4402      
+small.p1.t10          .              .             1.0000        -0.4402      
+small.p1.t11          .              .             1.0000        -0.4402      
+small.p1.t12          .              .             1.0000        -0.4402      
+small.p1.t13          .              .             1.0000        -0.4402      
+small.p1.t14          .              .             1.0000        -0.4402      
+small.p1.t15          .              .             1.0000        -0.4402      
+small.p1.t16          .              .             1.0000        -0.4402      
+small.p1.t17          .              .             1.0000        -0.4402      
+small.p1.t18          .             1.0000         1.0000         0.1756      
+small.p1.t19          .              .             1.0000        -0.4402      
+small.p1.t20          .              .             1.0000        -0.4402      
+small.p1.t21          .              .             1.0000        -0.4402      
+small.p1.t22          .              .             1.0000        -0.4402      
+small.p1.t23          .              .             1.0000        -0.4402      
+small.p1.t24          .              .             1.0000        -0.4402      
+small.p2.t1           .              .             1.0000        -0.2785      
+small.p2.t2           .             1.0000         1.0000         0.1111      
+small.p2.t3           .             1.0000         1.0000         0.1111      
+small.p2.t4           .              .             1.0000        -0.2785      
+small.p2.t5           .             1.0000         1.0000         0.1111      
+small.p2.t6           .              .             1.0000        -0.2785      
+small.p2.t7           .             1.0000         1.0000         0.1111      
+small.p2.t8           .              .             1.0000        -0.2785      
+small.p2.t9           .             1.0000         1.0000         0.1756      
+small.p2.t10          .              .             1.0000        -0.4402      
+small.p2.t11          .              .             1.0000        -0.4402      
+small.p2.t12          .              .             1.0000        -0.4402      
+small.p2.t13          .              .             1.0000        -0.4402      
+small.p2.t14          .              .             1.0000        -0.4402      
+small.p2.t15          .             1.0000         1.0000         0.1756      
+small.p2.t16          .              .             1.0000        -0.4402      
+small.p2.t17          .              .             1.0000        -0.4402      
+small.p2.t18          .              .             1.0000        -0.4402      
+small.p2.t19          .             1.0000         1.0000         0.1756      
+small.p2.t20          .              .             1.0000        -0.4402      
+small.p2.t21          .              .             1.0000        -0.4402      
+small.p2.t22          .              .             1.0000        -0.4402      
+small.p2.t23          .              .             1.0000        -0.4402      
+small.p2.t24          .             1.0000         1.0000         0.1756      
+small.p3.t1           .              .             1.0000        -0.2785      
+small.p3.t2           .              .             1.0000        -0.2785      
+small.p3.t3           .             1.0000         1.0000         0.1111      
+small.p3.t4           .             1.0000         1.0000         0.1111      
+small.p3.t5           .              .             1.0000        -0.2785      
+small.p3.t6           .             1.0000         1.0000         0.1111      
+small.p3.t7           .              .             1.0000        -0.2785      
+small.p3.t8           .             1.0000         1.0000         0.1111      
+small.p3.t9           .              .             1.0000        -0.4402      
+small.p3.t10          .              .             1.0000        -0.4402      
+small.p3.t11          .              .             1.0000        -0.4402      
+small.p3.t12          .              .             1.0000        -0.4402      
+small.p3.t13          .              .             1.0000        -0.4402      
+small.p3.t14          .              .             1.0000        -0.4402      
+small.p3.t15          .              .             1.0000        -0.4402      
+small.p3.t16          .              .             1.0000        -0.4402      
+small.p3.t17          .             1.0000         1.0000         0.1756      
+small.p3.t18          .              .             1.0000        -0.4402      
+small.p3.t19          .             1.0000         1.0000         0.1756      
+small.p3.t20          .              .             1.0000        -0.4402      
+small.p3.t21          .             1.0000         1.0000         0.1756      
+small.p3.t22          .              .             1.0000        -0.4402      
+small.p3.t23          .              .             1.0000        -0.4402      
+small.p3.t24          .              .             1.0000        -0.4402      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR z                 -INF            7.4042        +INF             .          
+
+  z  Coût total
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+
+
+EXECUTION TIME       =        0.016 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+
+
+USER: Large MUD - 20 User License                    W181015:1136AO-GEN
+      Ecole des Mines de Paris, CMA                              DC4036
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Valentin Lassaigne\Optim\MINLP\4WT.gms
+Output     C:\Valentin Lassaigne\Optim\MINLP\4WT.lst
