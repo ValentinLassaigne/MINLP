@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:23:49 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 14:58:53 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -141,7 +141,7 @@ C o m p i l a t i o n
  139  *debits_pipeS_max(l('s',n),t) .. qlt(l,t) =l=  (phi(l,'1')-sqrt((phi(l,'1')*phi(l,'1'))-4*(psi('small','2')-phi(l,'2'))*psi('small','0')))/(2*psi('small','2')-phi(l,'2'));
  140  puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
  141  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
- 142  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 142  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
  143  *pression_j(j,t) .. charge(j,t) =g= height(j);
  144  *pression_r(r,t) .. charge(r,t) =g= height(r) + vrt(r,t) / surface(r);
  145  gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
@@ -153,14 +153,14 @@ C o m p i l a t i o n
  151   
  152  Model Planification /all/;
  153   
- 154  Solve Planification using minlp minimizing z ;
+ 154  Solve Planification using MINLP minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:23:49 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 14:58:53 Page 2
 Pump scheduling smallest
 Equation Listing    SOLVE Planification Using MINLP From line 154
 
@@ -276,11 +276,11 @@ REMAINING ENTRY SKIPPED
 
 ---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
 
-demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 9.83 ; (LHS = 0, INFES = 9.83 ****)
+demandes(r1,t2)..  qrt(r1,t2) + vrt(r1,t1) - vrt(r1,t2) =E= 5 ; (LHS = 0, INFES = 5 ****)
      
-demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 5 ; (LHS = 0, INFES = 5 ****)
+demandes(r1,t3)..  qrt(r1,t3) + vrt(r1,t2) - vrt(r1,t3) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
      
-demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 3.67 ; (LHS = 0, INFES = 3.67 ****)
+demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 6.5 ; (LHS = 0, INFES = 6.5 ****)
      
 REMAINING 29 ENTRIES SKIPPED
 
@@ -317,7 +317,7 @@ charge_r(r1,t3)..  - 0.0125*vrt(r1,t3) + charge(r1,t3) =E= 0 ; (LHS = 0)
      
 REMAINING 33 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:23:49 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 14:58:53 Page 3
 Pump scheduling smallest
 Column Listing      SOLVE Planification Using MINLP From line 154
 
@@ -488,7 +488,7 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:23:49 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 14:58:53 Page 4
 Pump scheduling smallest
 Model Statistics    SOLVE Planification Using MINLP From line 154
 
@@ -506,7 +506,7 @@ GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
 EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:23:49 Page 5
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 14:58:53 Page 5
 Pump scheduling smallest
 Solution Report     SOLVE Planification Using MINLP From line 154
 
@@ -521,7 +521,7 @@ Solution Report     SOLVE Planification Using MINLP From line 154
 **** MODEL STATUS      11 Licensing Problem        
 **** OBJECTIVE VALUE               NA
 
- RESOURCE USAGE, LIMIT          0.015      1000.000
+ RESOURCE USAGE, LIMIT          0.016      1000.000
  ITERATION COUNT, LIMIT 2100000000    2000000000
  EVALUATION ERRORS              0             0
 -------------------------------------------------------------------------------
