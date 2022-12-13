@@ -9,7 +9,7 @@ Sets
      night(t)   night periods / t1*t8 /      
      c          pump class / small, large /
      d          pump number / p1*p4 /
-     k(c,d)     pumps / small.p1*p2, large.p1*p4 /
+     k(c,d)     pumps / small.p1*p2, large.p3*p4 /
      degree     polynomial degrees / 0*2 /
 
      alias (n,np)
@@ -104,3 +104,55 @@ Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^
      j6.j10     0.0003418       0.0024063
      j10.r18    0.0044362       0.0106558
      j10.r181   0.0003081       0.0016460;
+
+Positive Variable
+    qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+    qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+    qlt(n,n,t)  débit en pipe l au temps t 
+    vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+    pkt(c,d,t) Puissance de la pompe k à la période t
+    charge(n,t) Charge à chaque noeud j à la période t;
+
+Binary Variable
+    xkt(c,d,t) Pompe k allumé à la période t, sinon 0; 
+     
+free variable
+    z Coût total ;
+
+Equations
+    cost    definition de la fonction objective
+    flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
+    flow_r(t,n)   conservation du flow à chaque temps t
+    flow_j(t,n)   conservation du flow à chaque temps t
+    volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+    volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+    demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+    demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+*    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+*    gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
+*    perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+*    perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+*    charge_r(r,t)   charge en r pour tout t;
+
+cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+*debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * (sqrt(-4*psi(c,'2')*psi(c,'0'))/(2*psi(c,'2'))) ;
+puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+*gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
+*perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+*perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+*charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
+
+
+Model Planification /all/;
+
+Solve Planification using rminlp minimizing z ;

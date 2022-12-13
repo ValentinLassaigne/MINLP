@@ -1,0 +1,499 @@
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 1
+Pump Scheduling CusNet
+C o m p i l a t i o n
+
+
+   2   
+   3  Sets
+   4       n          nodes / s, j39, j14, j16, j17, j19, j21, j24, j26, j27, j30, j2, j3, j6, j7, j10, r12, r13, r132, r133, r134, r14, r15, r151, r16, r161, r17, r171, r18, r181, r19, r191 /
+   5       j(n)       junctions / j39, j14, j16, j17, j19, j21, j24, j26, j27, j30, j2, j3, j6, j7, j10 /
+   6       r(n)       reservoirs / r12, r13, r132, r133, r134, r14, r15, r151, r16, r161, r17, r171, r18, r181, r19, r191 /
+   7       l(n,n)     pipes / s.j39, j39.j14, j14.r12, j14.j16, j16.j17, j17.r13, j17.j19, j19.r132, j19.j21, j21.r133, j21.r134, j16.j24, j24.r14, j24.j26, j26.j27, j27.r16, j27.r161, j26.j30, j30.r15, j30.r151, j39.j2, j2.j3, j3.r17, j3.r171, j2.j6, j6.
+      j7, j7.r19, j7.r191, j6.j10, j10.r18, j10.r181 /
+   8       t          1-hour periods / t1*t24 /
+   9       night(t)   night periods / t1*t8 /
+  10       c          pump class / small, large /
+  11       d          pump number / p1*p4 /
+  12       k(c,d)     pumps / small.p1*p2, large.p3*p4 /
+  13       degree     polynomial degrees / 0*2 /
+  14   
+  15       alias (n,np)
+  16       alias (k,kp)
+  17       alias (d,dp);
+  18   
+  19  Scalar
+  20       height0      reference height at the source (m)     / 0 /
+  21       tariffnight  electricity hourly tariff at night (euro.kWh^-1) / 0.02916 /
+  22       tariffday    electricity hourly tariff at day (euro.kWh^-1)   / 0.04609 /
+  23   
+  24  Parameter tariff(t)   electricity tariff;
+  25      tariff(t)        = tariffday;
+  26      tariff(night(t)) = tariffnight;
+  27   
+  28  Parameters
+  29      height(n)   elevation at each node relative to s (m)
+  30                  / s 40, j39 68, j14 63, j16 87, j17 99, j19 110, j21 102, j24 87, j26 87, j27 88, j30 48, j2 74, j3 75, j6 56, j7 64, j10 73, r12 91, r13 116, r132 100, r133 81, r134 131, r14 97, r15 61, r151 91, r16 106, r161 93, r17 92, r171 80, r
+      18 86, r181 91, r19 75, r191 87 /
+  31   
+  32      surface(r)  mean surface of each reservoir (m^2)
+  33                  / r12 35.5, r13 29.286, r132 77.143, r133 52.5, r134 87.059, r14 38.889, r15 85.455, r151 199.130, r16 40.0, r161 101.111, r17 65.294, r171 91.6, r18 56.111, r181 201.538, r19 210.0, r191 278.330 /
+  34   
+  35      vmin(r)  minimal volume of each reservoir (m^3)
+  36                  / r12 106.5, r13 38.07, r132 231.43, r133 236.25, r134 444.0, r14 70.0, r15 188.0, r151 816.43, r16 112.0, r161 444.89, r17 215.47, r171 256.48, r18 185.17, r181 947.23, r19 1218.0, r191 1141.17 /
+  37   
+  38      vmax(r)  maximal volume of each reservoir (m^3)
+  39                  / r12 177.5, r13 79.07, r132 366.43, r133 383.25, r134 592, r14 105, r15 282, r151 1045.43, r16 146, r161 535.89, r17 326.47, r171 485.48, r18 286.17, r181 1209.23, r19 1386.0, r191 1475.17 /
+  40   
+  41  Parameter vinit(r) initial volume of each reservoir;
+  42      vinit(r) = vmin(r);
+  43   
+  44  * a polynomial is represented as the list of coefficients for each term degree
+  45  Table psi(c,degree) quadratic fit of the service pressure (m) on the flow (m^3.h^-1) for each class of pumps
+  46                    0            1            2
+  47        small       152.3245     0            -0.0010392
+  48        large       178.3516     0            -0.0003700;
+  49   
+  50  Table gamma(c,degree) linear fit of the electrical power (kW) on the flow (m^3.h^-1) for each class of pumps
+  51                    0                 1
+  52        small       35.3816937        0.24236468
+  53        large       77.12442079       0.25496284;
+  54   
+  55  Table demand(r,t) demand in water at each reservoir and each hour (m^3.h^-1)
+  56       t1     t2     t3     t4     t5     t6    t7      t8      t9     t10   t11   t12   t13    t14   t15   t16    t17    t18    t19    t20   t21    t22    t23   t24
+  57  r19  60.5   58.83  51.83  39.67  31.33  33.0  24.0    31.5    43.0   29.0  89.5  95.67 94.83  92.67 83.5  74.5   65.83  70.67  65.5   68.33 78.33  94.33  90.5  81.67
+  58  r18  8.33   7.67   5.83   3.0    3.33   3.0   4.5     6.5     11.17  21.83 26.0  31.0  27.0   24.0  21.0  21.0   16.83  16.5   17.0   18.67 23.33  21.33  19.0  15.0
+  59  r181 125.67 149.33 128.67 105.83 93.33  62.5  41.5    26.83   23.33  23.5  21.0  18.0  18.33  77.33 137.0 212.33 200.83 160.17 131.17 129.0 117.67 103.67 96.17 110.33
+  60  r191 13.75  4.75   25.75  18.0   15.0   14.0  0.0     28.25   44.0   78.0  122.0 102.0 87.0   81.0  62.0  94.75  71.0   17.0   37.75  99.0  117.25 92.75  63.0  54.25
+  61  r133 56.17  59.33  37.33  31.0   27.0   26.33 27.0    26.5    30.67  45.67 80.83 113.0 131.33 116.0 96.33 75.0   70.0   65.0   54.0   52.0  79.0   120.17 115.0 78.0
+  62  r12  9.67   7.0    4.33   6.0    6.0    3.67  2.0     4.0     3.0    9.17  13.0  17.0  21.0   20.67 20.17 18.0   15.83  17.17  13.0   13.33 19.5   24.17  22.0  20.0
+  63  r132 17.17  19.5   16.83  7.67   9.0    9.67  5.83    11.67   6.5    17.0  33.67 41.0  48.0   37.5  34.67 35.83  35.0   36.33  29.83  31.5  30.83  37.17  42.67 35.33
+  64  r16  13.0   12.0   10.0   5.0    2.0    1.0   2.0     2.0     2.17   9.17  10.0  12.0  13.33  13.33 14.17 15.0   13.0   12.0   13.17  12.33 13.17  14.0   13.0  13.83
+  65  r151 47.67  34.67  15.33  10.67  10.83  10.0  10.0    20.33   18.0   42.17 96.0  132.0 140.5  109.0 85.0  82.0   73.0   61.0   58.0   69.0  111.0  140.0  103.0 73.17
+  66  r15  19.0   16.0   8.0    5.0    4.0    4.33  6.33    8.17    6.0    13.0  34.67 47.0  49.17  42.5  37.0  28.17  31.33  27.0   23.0   23.0  31.0   46.0   36.17 24.0
+  67  r14  1.25   0.0    0.0    0.0    0.0    0.0   0.0     0.0     0.0    4.0   16.0  14.0  1.0    5.25  3.25  5.0    0.0    2.0    3.0    0.0   4.5    4.25   0.0   4.0
+  68  r134 10.83  6.83   5.0    4.17   3.0    5.5   2.0     1.0     2.0    6.83  13.0  19.0  21.0   16.0  15.0  13.0   13.0   6.5    11.83  8.0   15.0   20.0   17.0  10.67
+  69  r161 47.33  53.0   51.83  28.0   25.0   26.67 21.67   16.67   4.0    42.67 60.0  63.0  110.83 84.33 93.0  67.0   73.0   69.0   56.0   64.0  89.5   99.0   95.83 67.0
+  70  r13  0.83   1.5    1.17   1.5    1.83   1.83  1.0     1.0     0.0    3.5   2.0   3.0   4.0    3.0   3.0   3.0    2.0    3.0    2.0    2.0   4.0    3.0    3.0   3.0
+  71  r171 10.0   18.17  13.0   7.83   4.67   11.0  6.0     6.0     7.5    18.0  39.0  38.0  40.0   35.0  33.0  20.0   23.83  31.0   23.0   17.33 26.67  34.83  21.5  24.0
+  72  r17  25.17  26.33  10.83  12.0   12.17  15.0  13.0    14.0    5.67   16.33 42.67 46.0  56.67  50.67 46.0  40.0   34.0   31.0   30.0   33.0  36.0   48.17  45.0  38.0
+  73   
+  74  Table phi(n,n,degree) quadratic fit of the pressure loss (m) on the flow (m^3.h^-1) for each pipe
+  75                  2               1
+  76       s.j39      0.0000059       0.0000857
+  77       j39.j14    0.0000293       0.0003698
+  78       j14.r12    0.0072579       0.0174338
+  79       j14.j16    0.0000253       0.0003194
+  80       j16.j17    0.0000976       0.0008626
+  81       j17.r13    0.1099129       0.0930793
+  82       j17.j19    0.0002801       0.0014965
+  83       j19.r132   0.0006719       0.0025549
+  84       j19.j21    0.0005600       0.0029922
+  85       j21.r133   0.0001541       0.0008234
+  86       j21.r134   0.0003780       0.0020200
+  87       j16.j24    0.0000006       0.0000042
+  88       j24.r14    0.0006042       0.0005116
+  89       j24.j26    0.0002442       0.0017189
+  90       j26.j27    0.0000922       0.0006496
+  91       j27.r16    0.0000055       0.0000386
+  92       j27.r161   0.0014330       0.0054486
+  93       j26.j30    0.0002805       0.0019744
+  94       j30.r15    0.0005049       0.0019200
+  95       j30.r151   0.0006460       0.0024562
+  96       j39.j2     0.0000251       0.0002223
+  97       j2.j3      0.0006066       0.0014572
+  98       j3.r17     0.0000363       0.0001379
+  99       j3.r171    0.0080641       0.0193703
+ 100       j2.j6      0.0000854       0.0007548
+ 101       j6.j7      0.0001341       0.0011860
+ 102       j7.r19     0.0016344       0.0062146
+ 103       j7.r191    0.0001951       0.0017250
+ 104       j6.j10     0.0003418       0.0024063
+ 105       j10.r18    0.0044362       0.0106558
+ 106       j10.r181   0.0003081       0.0016460;
+ 107   
+ 108  Positive Variable
+ 109      qkt(c,d,t) Débit d_eau pompé par la pompe k à la période t
+ 110      qrt(r,t) Débit entrant dans chaque réservoir r à la période t
+ 111      qlt(n,n,t)  débit en pipe l au temps t
+ 112      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
+ 113      pkt(c,d,t) Puissance de la pompe k à la période t
+ 114      charge(n,t) Charge à chaque noeud j à la période t;
+ 115   
+ 116  Binary Variable
+ 117      xkt(c,d,t) Pompe k allumé à la période t, sinon 0;
+ 118   
+ 119  free variable
+ 120      z Coût total ;
+ 121   
+ 122  Equations
+ 123      cost    definition de la fonction objective
+ 124      flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
+ 125      flow_r(t,n)   conservation du flow à chaque temps t
+ 126      flow_j(t,n)   conservation du flow à chaque temps t
+ 127      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+ 128      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+ 129      demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+ 130      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+ 131  *    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 132      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 133      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+ 134  *    gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
+ 135  *    perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+ 136  *    perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+ 137  *    charge_r(r,t)   charge en r pour tout t;
+ 138   
+ 139  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 140  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+ 141  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+ 142  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+ 143  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 144  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 145  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+ 146  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 147  *debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+ 148  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * (sqrt(-4*psi(c,'2')*psi(c,'0'))/(2*psi(c,'2'))) ;
+ 149  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+ 150  *gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
+ 151  *perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+ 152  *perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+ 153  *charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
+ 154   
+ 155   
+ 156  Model Planification /all/;
+ 157   
+ 158  Solve Planification using rminlp minimizing z ;
+
+**** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
+**** STRAY NAME sinon OF TYPE VAR  
+
+
+COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 2
+Pump Scheduling CusNet
+Equation Listing    SOLVE Planification Using RMINLP From line 158
+
+
+---- cost  =E=  definition de la fonction objective
+
+cost..  - 0.02916*pkt(small,p1,t1) - 0.02916*pkt(small,p1,t2) - 0.02916*pkt(small,p1,t3) - 0.02916*pkt(small,p1,t4) - 0.02916*pkt(small,p1,t5) - 0.02916*pkt(small,p1,t6) - 0.02916*pkt(small,p1,t7) - 0.02916*pkt(small,p1,t8) - 0.04609*pkt(small,p1,t9)
+     
+      - 0.04609*pkt(small,p1,t10) - 0.04609*pkt(small,p1,t11) - 0.04609*pkt(small,p1,t12) - 0.04609*pkt(small,p1,t13) - 0.04609*pkt(small,p1,t14) - 0.04609*pkt(small,p1,t15) - 0.04609*pkt(small,p1,t16) - 0.04609*pkt(small,p1,t17)
+     
+      - 0.04609*pkt(small,p1,t18) - 0.04609*pkt(small,p1,t19) - 0.04609*pkt(small,p1,t20) - 0.04609*pkt(small,p1,t21) - 0.04609*pkt(small,p1,t22) - 0.04609*pkt(small,p1,t23) - 0.04609*pkt(small,p1,t24) - 0.02916*pkt(small,p2,t1) - 0.02916*pkt(small,p2,t2)
+     
+      - 0.02916*pkt(small,p2,t3) - 0.02916*pkt(small,p2,t4) - 0.02916*pkt(small,p2,t5) - 0.02916*pkt(small,p2,t6) - 0.02916*pkt(small,p2,t7) - 0.02916*pkt(small,p2,t8) - 0.04609*pkt(small,p2,t9) - 0.04609*pkt(small,p2,t10) - 0.04609*pkt(small,p2,t11)
+     
+      - 0.04609*pkt(small,p2,t12) - 0.04609*pkt(small,p2,t13) - 0.04609*pkt(small,p2,t14) - 0.04609*pkt(small,p2,t15) - 0.04609*pkt(small,p2,t16) - 0.04609*pkt(small,p2,t17) - 0.04609*pkt(small,p2,t18) - 0.04609*pkt(small,p2,t19)
+     
+      - 0.04609*pkt(small,p2,t20) - 0.04609*pkt(small,p2,t21) - 0.04609*pkt(small,p2,t22) - 0.04609*pkt(small,p2,t23) - 0.04609*pkt(small,p2,t24) - 0.02916*pkt(large,p3,t1) - 0.02916*pkt(large,p3,t2) - 0.02916*pkt(large,p3,t3) - 0.02916*pkt(large,p3,t4)
+     
+      - 0.02916*pkt(large,p3,t5) - 0.02916*pkt(large,p3,t6) - 0.02916*pkt(large,p3,t7) - 0.02916*pkt(large,p3,t8) - 0.04609*pkt(large,p3,t9) - 0.04609*pkt(large,p3,t10) - 0.04609*pkt(large,p3,t11) - 0.04609*pkt(large,p3,t12) - 0.04609*pkt(large,p3,t13)
+     
+      - 0.04609*pkt(large,p3,t14) - 0.04609*pkt(large,p3,t15) - 0.04609*pkt(large,p3,t16) - 0.04609*pkt(large,p3,t17) - 0.04609*pkt(large,p3,t18) - 0.04609*pkt(large,p3,t19) - 0.04609*pkt(large,p3,t20) - 0.04609*pkt(large,p3,t21)
+     
+      - 0.04609*pkt(large,p3,t22) - 0.04609*pkt(large,p3,t23) - 0.04609*pkt(large,p3,t24) - 0.02916*pkt(large,p4,t1) - 0.02916*pkt(large,p4,t2) - 0.02916*pkt(large,p4,t3) - 0.02916*pkt(large,p4,t4) - 0.02916*pkt(large,p4,t5) - 0.02916*pkt(large,p4,t6)
+     
+      - 0.02916*pkt(large,p4,t7) - 0.02916*pkt(large,p4,t8) - 0.04609*pkt(large,p4,t9) - 0.04609*pkt(large,p4,t10) - 0.04609*pkt(large,p4,t11) - 0.04609*pkt(large,p4,t12) - 0.04609*pkt(large,p4,t13) - 0.04609*pkt(large,p4,t14) - 0.04609*pkt(large,p4,t15)
+     
+      - 0.04609*pkt(large,p4,t16) - 0.04609*pkt(large,p4,t17) - 0.04609*pkt(large,p4,t18) - 0.04609*pkt(large,p4,t19) - 0.04609*pkt(large,p4,t20) - 0.04609*pkt(large,p4,t21) - 0.04609*pkt(large,p4,t22) - 0.04609*pkt(large,p4,t23)
+     
+      - 0.04609*pkt(large,p4,t24) + z =E= 0 ; (LHS = 0)
+     
+
+---- flow_s  =E=  conservation du flow entre les pompes et la source à chaque temps t
+
+flow_s(t1)..  qkt(small,p1,t1) + qkt(small,p2,t1) + qkt(large,p3,t1) + qkt(large,p4,t1) - qlt(s,j39,t1) =E= 0 ; (LHS = 0)
+     
+flow_s(t2)..  qkt(small,p1,t2) + qkt(small,p2,t2) + qkt(large,p3,t2) + qkt(large,p4,t2) - qlt(s,j39,t2) =E= 0 ; (LHS = 0)
+     
+flow_s(t3)..  qkt(small,p1,t3) + qkt(small,p2,t3) + qkt(large,p3,t3) + qkt(large,p4,t3) - qlt(s,j39,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 21 ENTRIES SKIPPED
+
+
+---- flow_r  =E=  conservation du flow à chaque temps t
+
+flow_r(t1,r12)..  - qrt(r12,t1) + qlt(j14,r12,t1) =E= 0 ; (LHS = 0)
+     
+flow_r(t1,r13)..  - qrt(r13,t1) + qlt(j17,r13,t1) =E= 0 ; (LHS = 0)
+     
+flow_r(t1,r132)..  - qrt(r132,t1) + qlt(j19,r132,t1) =E= 0 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- flow_j  =E=  conservation du flow à chaque temps t
+
+flow_j(t1,j39)..  qlt(s,j39,t1) - qlt(j39,j14,t1) - qlt(j39,j2,t1) =E= 0 ; (LHS = 0)
+     
+flow_j(t1,j14)..  qlt(j39,j14,t1) - qlt(j14,j16,t1) - qlt(j14,r12,t1) =E= 0 ; (LHS = 0)
+     
+flow_j(t1,j16)..  qlt(j14,j16,t1) - qlt(j16,j17,t1) - qlt(j16,j24,t1) =E= 0 ; (LHS = 0)
+     
+REMAINING 357 ENTRIES SKIPPED
+
+
+---- volumes_min  =L=  volumes min à chaque temps t et pour chaque réservoir r
+
+volumes_min(r12,t1)..  - vrt(r12,t1) =L= -106.5 ; (LHS = 0, INFES = 106.5 ****)
+     
+volumes_min(r12,t2)..  - vrt(r12,t2) =L= -106.5 ; (LHS = 0, INFES = 106.5 ****)
+     
+volumes_min(r12,t3)..  - vrt(r12,t3) =L= -106.5 ; (LHS = 0, INFES = 106.5 ****)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- volumes_max  =L=  volumes max à chaque temps t et pour chaque réservoir r
+
+volumes_max(r12,t1)..  vrt(r12,t1) =L= 177.5 ; (LHS = 0)
+     
+volumes_max(r12,t2)..  vrt(r12,t2) =L= 177.5 ; (LHS = 0)
+     
+volumes_max(r12,t3)..  vrt(r12,t3) =L= 177.5 ; (LHS = 0)
+     
+REMAINING 381 ENTRIES SKIPPED
+
+
+---- demandes_t1  =E=  demandes pour t1 et pour chaque réservoir r
+
+demandes_t1(r12)..  qrt(r12,t1) - vrt(r12,t1) =E= -96.83 ; (LHS = 0, INFES = 96.83 ****)
+     
+demandes_t1(r13)..  qrt(r13,t1) - vrt(r13,t1) =E= -37.24 ; (LHS = 0, INFES = 37.24 ****)
+     
+demandes_t1(r132)..  qrt(r132,t1) - vrt(r132,t1) =E= -214.26 ; (LHS = 0, INFES = 214.26 ****)
+     
+REMAINING 13 ENTRIES SKIPPED
+
+
+---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+
+demandes(r12,t2)..  qrt(r12,t2) + vrt(r12,t1) - vrt(r12,t2) =E= 9.67 ; (LHS = 0, INFES = 9.67 ****)
+     
+demandes(r12,t3)..  qrt(r12,t3) + vrt(r12,t2) - vrt(r12,t3) =E= 7 ; (LHS = 0, INFES = 7 ****)
+     
+demandes(r12,t4)..  qrt(r12,t4) + vrt(r12,t3) - vrt(r12,t4) =E= 4.33 ; (LHS = 0, INFES = 4.33 ****)
+     
+REMAINING 365 ENTRIES SKIPPED
+
+
+---- debits_max  =L=  débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+
+debits_max(small,p1,t1)..  qkt(small,p1,t1) + 382.855871272495*xkt(small,p1,t1) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t2)..  qkt(small,p1,t2) + 382.855871272495*xkt(small,p1,t2) =L= 0 ; (LHS = 0)
+     
+debits_max(small,p1,t3)..  qkt(small,p1,t3) + 382.855871272495*xkt(small,p1,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+
+---- puissances  =E=  puissances de chaque pompe à chaque temps t et pour chaque pompe k
+
+puissances(small,p1,t1)..  - 0.24236468*qkt(small,p1,t1) + pkt(small,p1,t1) - 35.3816937*xkt(small,p1,t1) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t2)..  - 0.24236468*qkt(small,p1,t2) + pkt(small,p1,t2) - 35.3816937*xkt(small,p1,t2) =E= 0 ; (LHS = 0)
+     
+puissances(small,p1,t3)..  - 0.24236468*qkt(small,p1,t3) + pkt(small,p1,t3) - 35.3816937*xkt(small,p1,t3) =E= 0 ; (LHS = 0)
+     
+REMAINING 93 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 3
+Pump Scheduling CusNet
+Column Listing      SOLVE Planification Using RMINLP From line 158
+
+
+---- qkt  Débit d_eau pompé par la pompe k à la période t
+
+qkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t1)
+        1       debits_max(small,p1,t1)
+       -0.2424  puissances(small,p1,t1)
+
+qkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t2)
+        1       debits_max(small,p1,t2)
+       -0.2424  puissances(small,p1,t2)
+
+qkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       flow_s(t3)
+        1       debits_max(small,p1,t3)
+       -0.2424  puissances(small,p1,t3)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- qrt  Débit entrant dans chaque réservoir r à la période t
+
+qrt(r12,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t1,r12)
+        1       demandes_t1(r12)
+
+qrt(r12,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t2,r12)
+        1       demandes(r12,t2)
+
+qrt(r12,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_r(t3,r12)
+        1       demandes(r12,t3)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- qlt  débit en pipe l au temps t
+
+qlt(s,j39,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t1)
+        1       flow_j(t1,j39)
+
+qlt(s,j39,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t2)
+        1       flow_j(t2,j39)
+
+qlt(s,j39,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       flow_s(t3)
+        1       flow_j(t3,j39)
+
+REMAINING 741 ENTRIES SKIPPED
+
+---- vrt  Volume d_eau dans les réservoirs r à la période t
+
+vrt(r12,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r12,t1)
+        1       volumes_max(r12,t1)
+       -1       demandes_t1(r12)
+        1       demandes(r12,t2)
+
+vrt(r12,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r12,t2)
+        1       volumes_max(r12,t2)
+       -1       demandes(r12,t2)
+        1       demandes(r12,t3)
+
+vrt(r12,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       volumes_min(r12,t3)
+        1       volumes_max(r12,t3)
+       -1       demandes(r12,t3)
+        1       demandes(r12,t4)
+
+REMAINING 381 ENTRIES SKIPPED
+
+---- pkt  Puissance de la pompe k à la période t
+
+pkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t1)
+
+pkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t2)
+
+pkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -0.0292  cost
+        1       puissances(small,p1,t3)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- xkt  Pompe k allumé à la période t
+
+xkt(small,p1,t1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      382.8559  debits_max(small,p1,t1)
+      -35.3817  puissances(small,p1,t1)
+
+xkt(small,p1,t2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      382.8559  debits_max(small,p1,t2)
+      -35.3817  puissances(small,p1,t2)
+
+xkt(small,p1,t3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+      382.8559  debits_max(small,p1,t3)
+      -35.3817  puissances(small,p1,t3)
+
+REMAINING 93 ENTRIES SKIPPED
+
+---- z  Coût total
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 4
+Pump Scheduling CusNet
+Model Statistics    SOLVE Planification Using RMINLP From line 158
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          10     SINGLE EQUATIONS        2,113
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES        1,801
+NON ZERO ELEMENTS         4,449     NON LINEAR N-Z              0
+DERIVATIVE POOL              20     CONSTANT POOL              16
+CODE LENGTH                   0     DISCRETE VARIABLES         96
+
+
+GENERATION TIME      =        0.032 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
+
+
+EXECUTION TIME       =        0.032 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 5
+Pump Scheduling CusNet
+Solution Report     SOLVE Planification Using RMINLP From line 158
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   Planification       OBJECTIVE  z
+     TYPE    RMINLP              DIRECTION  MINIMIZE
+     SOLVER  CONOPT              FROM LINE  158
+
+**** SOLVER STATUS     7 Licensing Problems        
+**** MODEL STATUS      11 Licensing Problem        
+**** OBJECTIVE VALUE               NA
+
+ RESOURCE USAGE, LIMIT          0.000      1000.000
+ ITERATION COUNT, LIMIT         0    2000000000
+ EVALUATION ERRORS              0             0
+CONOPT 3         25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
+*** No license found
+*** To update your license, please contact your distributor.
+*** Too many equations for demo mode
+***   Number of equations          : 2113
+***   Maximum allowed              : 300
+*** Too many variables for demo mode
+***   Number of variables          : 1801
+***   Maximum allowed              : 300
+*** Too many nonzero elements for demo mode
+***   Number of nonzeros           : 4449
+***   Maximum allowed              : 2000
+
+
+No solution returned
+
+
+EXECUTION TIME       =        0.000 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+
+
+USER: Large MUD - 20 User License                    W181015:1136AO-GEN
+      Ecole des Mines de Paris, CMA                              DC4036
+      License for teaching and research at degree granting institutions
+
+
+**** FILE SUMMARY
+
+Input      C:\Valentin Lassaigne\Optim\MINLP\Customer_Network.gms
+Output     C:\Valentin Lassaigne\Optim\MINLP\Customer_Network.lst
