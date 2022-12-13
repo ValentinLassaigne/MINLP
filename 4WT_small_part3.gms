@@ -120,8 +120,9 @@ Equations
 *    pression_j(n,t)   pressions en chaque noeud j supérieur à l_élévation du noeud j
 *    pression_r(r,t)   pressions en chaque réservoir supérieur à l_élévation du niveau d_eau
     gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
-    perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
-    perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+*    perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+*    perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+    charge_j(n,n,t)     charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
     charge_r(r,t)   charge en r pour tout t;
 *    debit_en_r(r,t)     débit en r pour tout t;
     
@@ -142,9 +143,9 @@ demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-
 *pression_j(j,t) .. charge(j,t) =g= height(j);
 *pression_r(r,t) .. charge(r,t) =g= height(r) + vrt(r,t) / surface(r); 
 gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
-perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
-perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
-*charge_j(l(n,np),t) .. charge(np,t) =e= charge(n,t) - (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
+*perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+*perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+charge_j(l(n,np),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
 charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
 *debit_en_r(r,t)..  yrt(r,t) * 200 =l= qrt(r,t);
 
