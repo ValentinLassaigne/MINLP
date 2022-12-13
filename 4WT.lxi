@@ -1,41 +1,28 @@
 B 2 C o m p i l a t i o n
-B 125 Equation Listing    SOLVE Planification Using MIP From line 113
-D 126 cost
-D 148 flow_s
-D 159 flow_r
-D 170 flow_j
-D 181 volumes_min
-D 192 volumes_max
-D 203 demandes_t1
-D 214 demandes
-D 225 debits_min
-D 236 debits_max
-D 247 puissances
-B 260 Column Listing      SOLVE Planification Using MIP From line 113
-E 261 qkt
-E 287 qrt
-E 306 qlt
-E 325 vrt
-E 350 pkt
-E 369 xkt
-E 388 z
-B 397 Model Statistics    SOLVE Planification Using MIP From line 113
-B 413 Solution Report     SOLVE Planification Using MIP From line 113
-F 452 cost
-F 460 flow_s
-F 489 flow_r
-F 590 flow_j
-F 643 volumes_min
-F 744 volumes_max
-F 845 demandes_t1
-F 854 demandes
-F 951 debits_min
-F 1028 debits_max
-F 1105 puissances
-G 1177 qkt
-G 1254 qrt
-G 1355 qlt
-G 1504 vrt
-G 1605 pkt
-G 1682 xkt
-G 1759 z
+B 133 Equation Listing    SOLVE Planification Using RMINLP From line 121
+D 134 cost
+D 156 flow_s
+D 167 flow_r
+D 178 flow_j
+D 189 volumes_min
+D 200 volumes_max
+D 211 demandes_t1
+D 222 demandes
+D 233 debits_min
+D 244 debits_max
+D 255 puissances
+D 266 gain_de_charge
+D 277 perte_de_charge_j
+D 288 perte_de_charge_r
+D 299 charge_r
+B 312 Column Listing      SOLVE Planification Using RMINLP From line 121
+E 313 qkt
+E 342 qrt
+E 361 qlt
+E 383 vrt
+E 411 pkt
+E 430 charge
+E 455 xkt
+E 474 z
+B 483 Model Statistics    SOLVE Planification Using RMINLP From line 121
+B 501 Solution Report     SOLVE Planification Using RMINLP From line 121

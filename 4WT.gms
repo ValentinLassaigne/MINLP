@@ -91,7 +91,11 @@ Equations
     demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
     debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
     debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
-    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k;
+    puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+    gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
+    perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+    perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+    charge_r(r,t)   charge en r pour tout t;
     
     
     
@@ -106,8 +110,12 @@ demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
 debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
+perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
 
 
 Model Planification /all/;
 
-Solve Planification using mip minimizing z ;
+Solve Planification using rminlp minimizing z ;
