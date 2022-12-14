@@ -100,22 +100,22 @@ Equations
     
     
 cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
-flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l('s',np), qlt(l,t)) ;
 flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
 flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
 volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
 volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
 demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
-demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
 debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
 debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
-gain_de_charge(k(c,d),t) .. charge('s',t) =l= psi('small','0')+psi('small','2')*(qkt(k,t)*qkt(k,t));
-perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(np) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
-perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) + height(n) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t) =l= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
+perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t)  =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
 charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
 
 
 Model Planification /all/;
 
-Solve Planification using rminlp minimizing z ;
+Solve Planification using minlp minimizing z ;

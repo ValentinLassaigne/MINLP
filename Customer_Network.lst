@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 11:37:19 Page 1
 Pump Scheduling CusNet
 C o m p i l a t i o n
 
@@ -149,7 +149,7 @@ C o m p i l a t i o n
  143  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
  144  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
  145  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
- 146  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t-1) ;
+ 146  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
  147  *debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
  148  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * (sqrt(-4*psi(c,'2')*psi(c,'0'))/(2*psi(c,'2'))) ;
  149  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
@@ -168,7 +168,7 @@ C o m p i l a t i o n
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 11:37:19 Page 2
 Pump Scheduling CusNet
 Equation Listing    SOLVE Planification Using RMINLP From line 158
 
@@ -268,11 +268,11 @@ REMAINING 13 ENTRIES SKIPPED
 
 ---- demandes  =E=  demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
 
-demandes(r12,t2)..  qrt(r12,t2) + vrt(r12,t1) - vrt(r12,t2) =E= 9.67 ; (LHS = 0, INFES = 9.67 ****)
+demandes(r12,t2)..  qrt(r12,t2) + vrt(r12,t1) - vrt(r12,t2) =E= 7 ; (LHS = 0, INFES = 7 ****)
      
-demandes(r12,t3)..  qrt(r12,t3) + vrt(r12,t2) - vrt(r12,t3) =E= 7 ; (LHS = 0, INFES = 7 ****)
+demandes(r12,t3)..  qrt(r12,t3) + vrt(r12,t2) - vrt(r12,t3) =E= 4.33 ; (LHS = 0, INFES = 4.33 ****)
      
-demandes(r12,t4)..  qrt(r12,t4) + vrt(r12,t3) - vrt(r12,t4) =E= 4.33 ; (LHS = 0, INFES = 4.33 ****)
+demandes(r12,t4)..  qrt(r12,t4) + vrt(r12,t3) - vrt(r12,t4) =E= 6 ; (LHS = 0, INFES = 6 ****)
      
 REMAINING 365 ENTRIES SKIPPED
 
@@ -298,7 +298,7 @@ puissances(small,p1,t3)..  - 0.24236468*qkt(small,p1,t3) + pkt(small,p1,t3) - 35
      
 REMAINING 93 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 11:37:19 Page 3
 Pump Scheduling CusNet
 Column Listing      SOLVE Planification Using RMINLP From line 158
 
@@ -432,7 +432,7 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 11:37:19 Page 4
 Pump Scheduling CusNet
 Model Statistics    SOLVE Planification Using RMINLP From line 158
 
@@ -446,11 +446,11 @@ DERIVATIVE POOL              20     CONSTANT POOL              16
 CODE LENGTH                   0     DISCRETE VARIABLES         96
 
 
-GENERATION TIME      =        0.032 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.031 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.032 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 09:46:45 Page 5
+EXECUTION TIME       =        0.031 SECONDS      5 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 11:37:19 Page 5
 Pump Scheduling CusNet
 Solution Report     SOLVE Planification Using RMINLP From line 158
 
@@ -485,7 +485,7 @@ CONOPT 3         25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows
 No solution returned
 
 
-EXECUTION TIME       =        0.000 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+EXECUTION TIME       =        0.016 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
 
 
 USER: Large MUD - 20 User License                    W181015:1136AO-GEN

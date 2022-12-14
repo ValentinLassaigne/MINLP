@@ -1,5 +1,5 @@
 B 2 C o m p i l a t i o n
-B 133 Equation Listing    SOLVE Planification Using RMINLP From line 121
+B 133 Equation Listing    SOLVE Planification Using MINLP From line 121
 D 134 cost
 D 156 flow_s
 D 167 flow_r
@@ -15,7 +15,7 @@ D 266 gain_de_charge
 D 277 perte_de_charge_j
 D 288 perte_de_charge_r
 D 299 charge_r
-B 312 Column Listing      SOLVE Planification Using RMINLP From line 121
+B 312 Column Listing      SOLVE Planification Using MINLP From line 121
 E 313 qkt
 E 342 qrt
 E 361 qlt
@@ -23,6 +23,6 @@ E 383 vrt
 E 411 pkt
 E 430 charge
 E 455 xkt
-E 474 z
-B 483 Model Statistics    SOLVE Planification Using RMINLP From line 121
-B 501 Solution Report     SOLVE Planification Using RMINLP From line 121
+E 477 z
+B 486 Model Statistics    SOLVE Planification Using MINLP From line 121
+B 504 Solution Report     SOLVE Planification Using MINLP From line 121
