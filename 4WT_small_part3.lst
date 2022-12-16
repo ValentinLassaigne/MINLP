@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 14:36:47 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -132,7 +132,7 @@ C o m p i l a t i o n
  130  puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
  131  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
  132  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
- 133  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =l= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
+ 133  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =e= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
  134  charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
  135  charge_r(l(n,r(np)),t) .. charge(n,t) - (vrt(r,t) / surface(r)) - height(np) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
  136  *charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
@@ -146,7 +146,7 @@ C o m p i l a t i o n
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 14:36:47 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 2
 Pump scheduling smallest
 Equation Listing    SOLVE Planification Using MINLP From line 140
 
@@ -260,13 +260,13 @@ demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 6.5 ; (LHS = 0, INFE
 REMAINING 29 ENTRIES SKIPPED
 
 
----- gain_de_charge  =L=  charge en s égale au gain de charge des pompes de toutes classes pour tout t
+---- gain_de_charge  =E=  charge en s égale au gain de charge des pompes de toutes classes pour tout t
 
-gain_de_charge(small,p1,t1)..  (0)*qkt(small,p1,t1) + (0)*charge(s,t1) - (63.0796)*xkt(small,p1,t1) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t1)..  (0)*qkt(small,p1,t1) + (0)*charge(s,t1) - (63.0796)*xkt(small,p1,t1) =E= 0 ; (LHS = 0)
      
-gain_de_charge(small,p1,t2)..  (0)*qkt(small,p1,t2) + (0)*charge(s,t2) - (63.0796)*xkt(small,p1,t2) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t2)..  (0)*qkt(small,p1,t2) + (0)*charge(s,t2) - (63.0796)*xkt(small,p1,t2) =E= 0 ; (LHS = 0)
      
-gain_de_charge(small,p1,t3)..  (0)*qkt(small,p1,t3) + (0)*charge(s,t3) - (63.0796)*xkt(small,p1,t3) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t3)..  (0)*qkt(small,p1,t3) + (0)*charge(s,t3) - (63.0796)*xkt(small,p1,t3) =E= 0 ; (LHS = 0)
      
 REMAINING 24 ENTRIES SKIPPED
 
@@ -292,7 +292,7 @@ charge_r(j1,r1,t3)..  - (0.00340436)*qlt(j1,r1,t3) - 0.0125*vrt(r1,t3) + charge(
      
 REMAINING 33 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 14:36:47 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 3
 Pump scheduling smallest
 Column Listing      SOLVE Planification Using MINLP From line 140
 
@@ -463,7 +463,7 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 14:36:47 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 4
 Pump scheduling smallest
 Model Statistics    SOLVE Planification Using MINLP From line 140
 
@@ -477,11 +477,11 @@ DERIVATIVE POOL              20     CONSTANT POOL              30
 CODE LENGTH                 703     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.046 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 14:36:47 Page 5
+EXECUTION TIME       =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 5
 Pump scheduling smallest
 Solution Report     SOLVE Planification Using MINLP From line 140
 

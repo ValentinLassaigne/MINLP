@@ -130,7 +130,7 @@ debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
 puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
 demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
 demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
-gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =l= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
+gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =e= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
 charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
 charge_r(l(n,r(np)),t) .. charge(n,t) - (vrt(r,t) / surface(r)) - height(np) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
 *charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
