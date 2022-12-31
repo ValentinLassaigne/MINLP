@@ -1,5 +1,5 @@
 B 2 C o m p i l a t i o n
-B 140 Equation Listing    SOLVE Planification Using MINLP From line 130
+B 140 Equation Listing    SOLVE Planification Using MIP From line 130
 D 141 cost
 D 152 flow_s
 D 163 flow_r
@@ -11,7 +11,7 @@ D 218 debits_max
 D 229 puissances
 D 240 demandes_t1
 D 251 demandes
-B 264 Column Listing      SOLVE Planification Using MINLP From line 130
+B 264 Column Listing      SOLVE Planification Using MIP From line 130
 E 265 qkt
 E 291 qrt
 E 310 qlt
@@ -19,23 +19,23 @@ E 329 vrt
 E 354 pkt
 E 373 xkt
 E 392 z
-B 401 Model Statistics    SOLVE Planification Using MINLP From line 130
-B 419 Solution Report     SOLVE Planification Using MINLP From line 130
-F 472 cost
-F 480 flow_s
-F 494 flow_r
-F 535 flow_j
-F 558 volumes_min
-F 599 volumes_max
-F 640 debits_min
-F 672 debits_max
-F 704 puissances
-F 736 demandes_t1
-F 745 demandes
-G 777 qkt
-G 809 qrt
-G 850 qlt
-G 909 vrt
-G 950 pkt
-G 982 xkt
-G 1014 z
+B 401 Model Statistics    SOLVE Planification Using MIP From line 130
+B 417 Solution Report     SOLVE Planification Using MIP From line 130
+F 455 cost
+F 463 flow_s
+F 477 flow_r
+F 518 flow_j
+F 541 volumes_min
+F 582 volumes_max
+F 623 debits_min
+F 655 debits_max
+F 687 puissances
+F 719 demandes_t1
+F 728 demandes
+G 760 qkt
+G 792 qrt
+G 833 qlt
+G 892 vrt
+G 933 pkt
+G 965 xkt
+G 997 z

@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 08:37:00 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/31/22 11:27:36 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -129,16 +129,16 @@ C o m p i l a t i o n
  127   
  128  Model Planification /all/;
  129   
- 130  Solve Planification using minlp minimizing z ;
+ 130  Solve Planification using mip minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 08:37:00 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/31/22 11:27:36 Page 2
 Pump scheduling smallest
-Equation Listing    SOLVE Planification Using MINLP From line 130
+Equation Listing    SOLVE Planification Using MIP From line 130
 
 
 ---- cost  =E=  definition de la fonction objective
@@ -260,9 +260,9 @@ demandes(r1,t4)..  qrt(r1,t4) + vrt(r1,t3) - vrt(r1,t4) =E= 6.5 ; (LHS = 0, INFE
      
 REMAINING 29 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 08:37:00 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/31/22 11:27:36 Page 3
 Pump scheduling smallest
-Column Listing      SOLVE Planification Using MINLP From line 130
+Column Listing      SOLVE Planification Using MIP From line 130
 
 
 ---- qkt  Débit d_eau pompé par la pompe k à la période t
@@ -397,56 +397,39 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 08:37:00 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/31/22 11:27:36 Page 4
 Pump scheduling smallest
-Model Statistics    SOLVE Planification Using MINLP From line 130
+Model Statistics    SOLVE Planification Using MIP From line 130
 
 
 MODEL STATISTICS
 
 BLOCKS OF EQUATIONS          11     SINGLE EQUATIONS          253
 BLOCKS OF VARIABLES           7     SINGLE VARIABLES          208
-NON ZERO ELEMENTS           537     NON LINEAR N-Z              0
-DERIVATIVE POOL              20     CONSTANT POOL              16
-CODE LENGTH                   0     DISCRETE VARIABLES         27
+NON ZERO ELEMENTS           537     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 08:37:00 Page 5
+EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/31/22 11:27:36 Page 5
 Pump scheduling smallest
-Solution Report     SOLVE Planification Using MINLP From line 130
+Solution Report     SOLVE Planification Using MIP From line 130
 
 
                S O L V E      S U M M A R Y
 
      MODEL   Planification       OBJECTIVE  z
-     TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  130
+     TYPE    MIP                 DIRECTION  MINIMIZE
+     SOLVER  CPLEX               FROM LINE  130
 
 **** SOLVER STATUS     1 Normal Completion         
 **** MODEL STATUS      1 Optimal                   
 **** OBJECTIVE VALUE                1.4808
 
- RESOURCE USAGE, LIMIT          0.031      1000.000
+ RESOURCE USAGE, LIMIT          0.015      1000.000
  ITERATION COUNT, LIMIT        50    2000000000
- EVALUATION ERRORS              0             0
--------------------------------------------------------------------------------
-Dicopt 2         25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
--------------------------------------------------------------------------------
-by Aldo Vecchietti, Director del Instituto INGAR,
-   CONICET, UTN, Santa Fe, Argentina
-by Ignacio E. Grossmann, Chemical Engineering Faculty,
-   Carnegie Mellon University, Pittsburgh, PA, USA
--------------------------------------------------------------------------------
---- DICOPT: No non-linearities found: executing the MIP solver
-
-      The model is linear (possibly with integer variables).
-      We will call the MIP solver to solve it for you.
-
-      Advice: use a MIP solver to solve this problem.
 
 IBM ILOG CPLEX   25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
 Cplex 12.8.0.0
@@ -454,7 +437,7 @@ Cplex 12.8.0.0
 Space for names approximately 0.01 Mb
 Use option 'names no' to turn use of names off
 MIP status(101): integer optimal solution
-Cplex Time: 0.02sec (det. 2.31 ticks)
+Cplex Time: 0.01sec (det. 2.31 ticks)
 Fixing integer variables, and solving final LP...
 Fixed MIP status(1): optimal
 Cplex Time: 0.00sec (det. 0.22 ticks)
@@ -1023,10 +1006,9 @@ small.p3.t9          .              .             1.0000        -0.2785
 **** REPORT SUMMARY :        0     NONOPT
                              0 INFEASIBLE
                              0  UNBOUNDED
-                             0     ERRORS
 
 
-EXECUTION TIME       =        0.015 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+EXECUTION TIME       =        0.000 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
 
 
 USER: Large MUD - 20 User License                    W181015:1136AO-GEN
