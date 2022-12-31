@@ -117,6 +117,42 @@ perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) - height(r) =g= ph
 charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
 symetrie_1(k(c,d),kp(c,d+1),t)  .. xkt(kp,t) =l= xkt(k,t);
 
+xkt.FX(k('small','p1'),'t1')=1;
+xkt.FX(k('small','p1'),'t2')=1;
+xkt.FX(k('small','p1'),'t3')=1;
+xkt.FX(k('small','p1'),'t4')=1;
+xkt.FX(k('small','p1'),'t5')=1;
+xkt.FX(k('small','p1'),'t6')=1;
+xkt.FX(k('small','p1'),'t7')=1;
+xkt.FX(k('small','p1'),'t8')=1;
+
+xkt.FX(k('small','p1'),'t9')=1;
+xkt.FX(k('small','p1'),'t10')=1;
+xkt.FX(k('small','p1'),'t11')=1;
+xkt.FX(k('small','p1'),'t12')=1;
+xkt.FX(k('small','p1'),'t13')=1;
+xkt.FX(k('small','p1'),'t14')=1;
+xkt.FX(k('small','p1'),'t15')=1;
+xkt.FX(k('small','p1'),'t16')=1;
+
+xkt.FX(k('small','p1'),'t17')=1;
+xkt.FX(k('small','p1'),'t18')=1;
+xkt.FX(k('small','p1'),'t19')=1;
+xkt.FX(k('small','p1'),'t20')=1;
+xkt.FX(k('small','p1'),'t21')=1;
+xkt.FX(k('small','p1'),'t22')=1;
+xkt.FX(k('small','p1'),'t23')=1;
+xkt.FX(k('small','p1'),'t24')=1;
+
+xkt.FX(k('small','p2'),'t1')=1;
+xkt.FX(k('small','p2'),'t2')=1;
+xkt.FX(k('small','p2'),'t3')=1;
+xkt.FX(k('small','p2'),'t4')=1;
+xkt.FX(k('small','p2'),'t5')=1;
+xkt.FX(k('small','p2'),'t6')=1;
+xkt.FX(k('small','p2'),'t7')=1;
+xkt.FX(k('small','p2'),'t8')=1;
+
 
 Model Planification /all/;
 
