@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/30/22 11:18:49 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -93,62 +93,59 @@ C o m p i l a t i o n
   91      vrt(r,t) Volume d_eau dans les réservoirs r à la période t
   92      pkt(c,d,t) Puissance de la pompe k à la période t
   93      charge(n,t) Charge à chaque noeud j à la période t;
-  94  *    charge_r(r,t) Charge à chaque réservoir r à la période t;
-  95   
-  96  Binary Variable
-  97      xkt(c,d,t) Pompe k allumé à la période t, sinon 0;
-  98  *    yrt(r,t) Débit en r à la période t, sinon 0;
-  99   
- 100  free variable
- 101      z Coût total ;
+  94   
+  95  Binary Variable
+  96      xkt(c,d,t) Pompe k allumé à la période t, sinon 0;
+  97   
+  98  free variable
+  99      z Coût total ;
+ 100   
+ 101   
  102   
- 103   
- 104   
- 105  Equations
- 106      cost    definition de la fonction objective
- 107      flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
- 108      flow_r(t,n)   conservation du flow à chaque temps t
- 109      flow_j(t,n)   conservation du flow à chaque temps t
- 110      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
- 111      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
- 112  *    debits_min (c,d,t)   débits min pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
- 113      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
- 114      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
- 115      demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
- 116      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
- 117      gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
- 118      charge_j(n,n,t)     charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
- 119      charge_r(n,n,t)     charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds;
- 120  *    charge_r(r,t)   charge en r pour tout t;
- 121   
- 122  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
- 123  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
- 124  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
- 125  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
- 126  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
- 127  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
- 128  *debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
- 129  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
- 130  puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
- 131  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
- 132  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
- 133  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =e= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
- 134  charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
- 135  charge_r(l(n,r(np)),t) .. charge(n,t) - (vrt(r,t) / surface(r)) - height(np) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
- 136  *charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
- 137   
- 138  Model Planification /all/;
- 139   
- 140  Solve Planification using MINLP minimizing z ;
+ 103  Equations
+ 104      cost    definition de la fonction objective
+ 105      flow_s(t)   conservation du flow entre les pompes et la source à chaque temps t
+ 106      flow_r(t,n)   conservation du flow à chaque temps t
+ 107      flow_j(t,n)   conservation du flow à chaque temps t
+ 108      volumes_min(r,t)   volumes min à chaque temps t et pour chaque réservoir r
+ 109      volumes_max(r,t)  volumes max à chaque temps t et pour chaque réservoir r
+ 110      debits_max (c,d,t)   débits max pour chaque temps t et pour chaque pompe k (ssi la pompe k est allumée)
+ 111      puissances(c,d,t)   puissances de chaque pompe à chaque temps t et pour chaque pompe k
+ 112      demandes_t1(r)   demandes pour t1 et pour chaque réservoir r
+ 113      demandes(r,t)   demandes pour chaque temps t et pour chaque réservoir r (aussi conservation du flow dans chaque tank)
+ 114      gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
+ 115      charge_j(n,n,t)     charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+ 116      charge_r(n,n,t)     charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
+ 117      symetrie_1(c,d,c,d,t)  Supprimer les symétries de pompes 1 et 2;
+ 118   
+ 119  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 120  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l(n,np)$(ord(n) le 1), qlt(l,t)) ;
+ 121  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+ 122  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+ 123  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 124  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 125  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t)* 99.21 ;
+ 126  puissances(k(c,d),t) .. pkt(k,t) =e= gamma('small','0')*xkt(k,t) + gamma('small','1')*qkt(k,t) ;
+ 127  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+ 128  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
+ 129  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t)  =e= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
+ 130  charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
+ 131  charge_r(l(n,r(np)),t) .. charge(n,t) - (vrt(r,t) / surface(r)) - height(np) =g= (phi(l,'1')*qlt(l,t)+phi(l,'2')*qlt(l,t)*qlt(l,t));
+ 132  symetrie_1(k(c,d),kp(c,d+1),t)  .. xkt(kp,t) =l= xkt(k,t);
+ 133   
+ 134   
+ 135  Model Planification /all/;
+ 136   
+ 137  Solve Planification using MINLP minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/30/22 11:18:49 Page 2
 Pump scheduling smallest
-Equation Listing    SOLVE Planification Using MINLP From line 140
+Equation Listing    SOLVE Planification Using MINLP From line 137
 
 
 ---- cost  =E=  definition de la fonction objective
@@ -292,9 +289,20 @@ charge_r(j1,r1,t3)..  - (0.00340436)*qlt(j1,r1,t3) - 0.0125*vrt(r1,t3) + charge(
      
 REMAINING 33 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 3
+
+---- symetrie_1  =L=  Supprimer les symétries de pompes 1 et 2
+
+symetrie_1(small,p1,small,p2,t1)..  - xkt(small,p1,t1) + xkt(small,p2,t1) =L= 0 ; (LHS = 0)
+     
+symetrie_1(small,p1,small,p2,t2)..  - xkt(small,p1,t2) + xkt(small,p2,t2) =L= 0 ; (LHS = 0)
+     
+symetrie_1(small,p1,small,p2,t3)..  - xkt(small,p1,t3) + xkt(small,p2,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 15 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/30/22 11:18:49 Page 3
 Pump scheduling smallest
-Column Listing      SOLVE Planification Using MINLP From line 140
+Column Listing      SOLVE Planification Using MINLP From line 137
 
 
 ---- qkt  Débit d_eau pompé par la pompe k à la période t
@@ -442,18 +450,21 @@ xkt(small,p1,t1)
       -99.21    debits_max(small,p1,t1)
        -3.811   puissances(small,p1,t1)
      (-63.0796) gain_de_charge(small,p1,t1)
+       -1       symetrie_1(small,p1,small,p2,t1)
 
 xkt(small,p1,t2)
                 (.LO, .L, .UP, .M = 0, 0, 1, 0)
       -99.21    debits_max(small,p1,t2)
        -3.811   puissances(small,p1,t2)
      (-63.0796) gain_de_charge(small,p1,t2)
+       -1       symetrie_1(small,p1,small,p2,t2)
 
 xkt(small,p1,t3)
                 (.LO, .L, .UP, .M = 0, 0, 1, 0)
       -99.21    debits_max(small,p1,t3)
        -3.811   puissances(small,p1,t3)
      (-63.0796) gain_de_charge(small,p1,t3)
+       -1       symetrie_1(small,p1,small,p2,t3)
 
 REMAINING 24 ENTRIES SKIPPED
 
@@ -463,34 +474,34 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/30/22 11:18:49 Page 4
 Pump scheduling smallest
-Model Statistics    SOLVE Planification Using MINLP From line 140
+Model Statistics    SOLVE Planification Using MINLP From line 137
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS          13     SINGLE EQUATIONS          307
+BLOCKS OF EQUATIONS          14     SINGLE EQUATIONS          325
 BLOCKS OF VARIABLES           8     SINGLE VARIABLES          235
-NON ZERO ELEMENTS           753     NON LINEAR N-Z            135
+NON ZERO ELEMENTS           789     NON LINEAR N-Z            135
 DERIVATIVE POOL              20     CONSTANT POOL              30
-CODE LENGTH                 703     DISCRETE VARIABLES         27
+CODE LENGTH                 702     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.078 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.032 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/15/22 11:32:55 Page 5
+EXECUTION TIME       =        0.078 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/30/22 11:18:49 Page 5
 Pump scheduling smallest
-Solution Report     SOLVE Planification Using MINLP From line 140
+Solution Report     SOLVE Planification Using MINLP From line 137
 
 
                S O L V E      S U M M A R Y
 
      MODEL   Planification       OBJECTIVE  z
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  140
+     SOLVER  DICOPT              FROM LINE  137
 
 **** SOLVER STATUS     7 Licensing Problems        
 **** MODEL STATUS      11 Licensing Problem        
@@ -510,7 +521,7 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
 *** No license found
 *** To update your license, please contact your distributor.
 *** Too many equations for demo mode
-***   Number of equations          : 307
+***   Number of equations          : 325
 ***   Maximum allowed              : 300
 
 No solution returned

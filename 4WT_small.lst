@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 10:33:15 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/24/22 17:24:35 Page 1
 Pump scheduling smallest
 C o m p i l a t i o n
 
@@ -132,7 +132,7 @@ C o m p i l a t i o n
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 10:33:15 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/24/22 17:24:35 Page 2
 Pump scheduling smallest
 Equation Listing    SOLVE Planification Using MIP From line 126
 
@@ -234,7 +234,7 @@ puissances(small,p1,t3)..  - 0.09627*qkt(small,p1,t3) + pkt(small,p1,t3) - 3.811
      
 REMAINING 24 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 10:33:15 Page 3
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/24/22 17:24:35 Page 3
 Pump scheduling smallest
 Column Listing      SOLVE Planification Using MIP From line 126
 
@@ -352,7 +352,7 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 10:33:15 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/24/22 17:24:35 Page 4
 Pump scheduling smallest
 Model Statistics    SOLVE Planification Using MIP From line 126
 
@@ -364,11 +364,11 @@ BLOCKS OF VARIABLES           6     SINGLE VARIABLES          154
 NON ZERO ELEMENTS           429     DISCRETE VARIABLES         27
 
 
-GENERATION TIME      =        0.047 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.047 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/13/22 10:33:15 Page 5
+EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/24/22 17:24:35 Page 5
 Pump scheduling smallest
 Solution Report     SOLVE Planification Using MIP From line 126
 
@@ -383,7 +383,7 @@ Solution Report     SOLVE Planification Using MIP From line 126
 **** MODEL STATUS      8 Integer Solution          
 **** OBJECTIVE VALUE                1.4387
 
- RESOURCE USAGE, LIMIT          0.032      1000.000
+ RESOURCE USAGE, LIMIT          0.031      1000.000
  ITERATION COUNT, LIMIT        21    2000000000
 
 IBM ILOG CPLEX   25.1.2 r67455 Released Aug  1, 2018 WEI x86 64bit/MS Windows 
@@ -392,7 +392,7 @@ Cplex 12.8.0.0
 Space for names approximately 0.01 Mb
 Use option 'names no' to turn use of names off
 MIP status(102): integer optimal, tolerance
-Cplex Time: 0.00sec (det. 1.11 ticks)
+Cplex Time: 0.02sec (det. 1.11 ticks)
 Fixing integer variables, and solving final LP...
 Fixed MIP status(1): optimal
 Cplex Time: 0.00sec (det. 0.17 ticks)
@@ -840,7 +840,7 @@ small.p3.t9          .              .             1.0000        -0.2785
                              0  UNBOUNDED
 
 
-EXECUTION TIME       =        0.000 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
+EXECUTION TIME       =        0.015 SECONDS      2 MB  25.1.2 r67455 WEX-WEI
 
 
 USER: Large MUD - 20 User License                    W181015:1136AO-GEN
