@@ -1,28 +1,29 @@
 B 2 C o m p i l a t i o n
-B 133 Equation Listing    SOLVE Planification Using MINLP From line 121
-D 134 cost
-D 156 flow_s
-D 167 flow_r
-D 178 flow_j
-D 189 volumes_min
-D 200 volumes_max
-D 211 demandes_t1
-D 222 demandes
-D 233 debits_min
-D 244 debits_max
-D 255 puissances
-D 266 gain_de_charge
-D 277 perte_de_charge_j
-D 288 perte_de_charge_r
-D 299 charge_r
-B 312 Column Listing      SOLVE Planification Using MINLP From line 121
-E 313 qkt
-E 342 qrt
-E 361 qlt
-E 383 vrt
-E 411 pkt
-E 430 charge
-E 455 xkt
-E 477 z
-B 486 Model Statistics    SOLVE Planification Using MINLP From line 121
-B 504 Solution Report     SOLVE Planification Using MINLP From line 121
+B 135 Equation Listing    SOLVE Planification Using MINLP From line 123
+D 136 cost
+D 158 flow_s
+D 169 flow_r
+D 180 flow_j
+D 191 volumes_min
+D 202 volumes_max
+D 213 demandes_t1
+D 224 demandes
+D 235 debits_min
+D 246 debits_max
+D 257 puissances
+D 268 gain_de_charge
+D 279 perte_de_charge_j
+D 290 perte_de_charge_r
+D 301 charge_r
+D 312 symetrie_1
+B 325 Column Listing      SOLVE Planification Using MINLP From line 123
+E 326 qkt
+E 355 qrt
+E 374 qlt
+E 396 vrt
+E 424 pkt
+E 443 charge
+E 468 xkt
+E 493 z
+B 502 Model Statistics    SOLVE Planification Using MINLP From line 123
+B 520 Solution Report     SOLVE Planification Using MINLP From line 123

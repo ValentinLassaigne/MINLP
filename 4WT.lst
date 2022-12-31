@@ -1,4 +1,4 @@
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 15:02:14 Page 1
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/26/22 11:00:39 Page 1
 Pump Scheduling 4WT
 C o m p i l a t i o n
 
@@ -99,39 +99,41 @@ C o m p i l a t i o n
   95      gain_de_charge(c,d,t)   charge en s égale au gain de charge des pompes de toutes classes pour tout t
   96      perte_de_charge_j (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
   97      perte_de_charge_r (n,n,t)    charge en j égale à la perte de charge des canalisations pour tout t et tous noeuds
-  98      charge_r(r,t)   charge en r pour tout t;
-  99   
+  98      charge_r(r,t)   charge en r pour tout t
+  99      symetrie_1(c,d,c,d,t)  Supprimer les symétries de pompes;
  100   
  101   
- 102  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
- 103  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l('s',np), qlt(l,t)) ;
- 104  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
- 105  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
- 106  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
- 107  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
- 108  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
- 109  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
- 110  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
- 111  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
- 112  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
- 113  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t) =l= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
- 114  perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t)  =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
- 115  perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
- 116  charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
- 117   
- 118   
- 119  Model Planification /all/;
+ 102   
+ 103  cost ..        z  =e=  sum((k,t),pkt(k,t) * tariff(t)) ;
+ 104  flow_s(t) ..     sum((k), qkt(k,t))  =e=  sum(l('s',np), qlt(l,t)) ;
+ 105  flow_r(t,r(n)) ..     sum(l(np,n), qlt(l,t))  =e=  qrt(r,t) ;
+ 106  flow_j(t,j(n)) ..     sum(l(np,n), qlt(l,t))  =e=  sum(l(n,np), qlt(l,t)) ;
+ 107  volumes_min(r,t) .. vmin(r)  =l=  vrt(r,t)  ;
+ 108  volumes_max(r,t) .. vrt(r,t)  =l=  vmax(r);
+ 109  demandes_t1(r)  .. vinit(r) + qrt(r,'t1') =e= vrt(r,'t1') + demand(r,'t1') ;
+ 110  demandes(r,t) $(ord(t) gt 1) .. vrt(r,t-1) + qrt(r,t) =e= vrt(r,t) + demand(r,t) ;
+ 111  debits_min(k(c,d),t) .. xkt(k,t)*0  =l=  qkt(k,t)   ;
+ 112  debits_max(k(c,d),t) .. qkt(k,t)  =l=  xkt(k,t) * 99.21 ;
+ 113  puissances(k(c,d),t) .. pkt(k,t) =e= gamma(c,'0')*xkt(k,t) + gamma(c,'1')*qkt(k,t) ;
+ 114  gain_de_charge(k(c,d),t) .. charge('s',t)*xkt(k,t) =e= psi('small','0')*xkt(k,t)+psi('small','2')*(qkt(k,t)*qkt(k,t));
+ 115  perte_de_charge_j(l(n,j(np)),t) .. charge(n,t) - charge(np,t)  =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+ 116  perte_de_charge_r(l(n,r(np)),t) .. charge(n,t) - charge(np,t) - height(r) =g= phi(l,'1')*qlt(l,t) + phi(l,'2')*(qlt(l,t)*qlt(l,t)) ;
+ 117  charge_r(r,t)..  charge(r,t) =e= vrt(r,t) / surface(r);
+ 118  symetrie_1(k(c,d),kp(c,d+1),t)  .. xkt(kp,t) =l= xkt(k,t);
+ 119   
  120   
- 121  Solve Planification using minlp minimizing z ;
+ 121  Model Planification /all/;
+ 122   
+ 123  Solve Planification using minlp minimizing z ;
 
 **** LIST OF STRAY NAMES - CHECK DECLARATIONS FOR SPURIOUS COMMAS
 **** STRAY NAME sinon OF TYPE VAR  
 
 
 COMPILATION TIME     =        0.000 SECONDS      3 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 15:02:14 Page 2
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/26/22 11:00:39 Page 2
 Pump Scheduling 4WT
-Equation Listing    SOLVE Planification Using MINLP From line 121
+Equation Listing    SOLVE Planification Using MINLP From line 123
 
 
 ---- cost  =E=  definition de la fonction objective
@@ -265,13 +267,13 @@ puissances(small,p1,t3)..  - 0.09627*qkt(small,p1,t3) + pkt(small,p1,t3) - 3.811
 REMAINING 69 ENTRIES SKIPPED
 
 
----- gain_de_charge  =L=  charge en s égale au gain de charge des pompes de toutes classes pour tout t
+---- gain_de_charge  =E=  charge en s égale au gain de charge des pompes de toutes classes pour tout t
 
-gain_de_charge(small,p1,t1)..  (0)*qkt(small,p1,t1) + (0)*charge(s,t1) - (63.0796)*xkt(small,p1,t1) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t1)..  (0)*qkt(small,p1,t1) + (0)*charge(s,t1) - (63.0796)*xkt(small,p1,t1) =E= 0 ; (LHS = 0)
      
-gain_de_charge(small,p1,t2)..  (0)*qkt(small,p1,t2) + (0)*charge(s,t2) - (63.0796)*xkt(small,p1,t2) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t2)..  (0)*qkt(small,p1,t2) + (0)*charge(s,t2) - (63.0796)*xkt(small,p1,t2) =E= 0 ; (LHS = 0)
      
-gain_de_charge(small,p1,t3)..  (0)*qkt(small,p1,t3) + (0)*charge(s,t3) - (63.0796)*xkt(small,p1,t3) =L= 0 ; (LHS = 0)
+gain_de_charge(small,p1,t3)..  (0)*qkt(small,p1,t3) + (0)*charge(s,t3) - (63.0796)*xkt(small,p1,t3) =E= 0 ; (LHS = 0)
      
 REMAINING 69 ENTRIES SKIPPED
 
@@ -308,9 +310,20 @@ charge_r(r1,t3)..  - 0.0125*vrt(r1,t3) + charge(r1,t3) =E= 0 ; (LHS = 0)
      
 REMAINING 93 ENTRIES SKIPPED
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 15:02:14 Page 3
+
+---- symetrie_1  =L=  Supprimer les symétries de pompes
+
+symetrie_1(small,p1,small,p2,t1)..  - xkt(small,p1,t1) + xkt(small,p2,t1) =L= 0 ; (LHS = 0)
+     
+symetrie_1(small,p1,small,p2,t2)..  - xkt(small,p1,t2) + xkt(small,p2,t2) =L= 0 ; (LHS = 0)
+     
+symetrie_1(small,p1,small,p2,t3)..  - xkt(small,p1,t3) + xkt(small,p2,t3) =L= 0 ; (LHS = 0)
+     
+REMAINING 45 ENTRIES SKIPPED
+
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/26/22 11:00:39 Page 3
 Pump Scheduling 4WT
-Column Listing      SOLVE Planification Using MINLP From line 121
+Column Listing      SOLVE Planification Using MINLP From line 123
 
 
 ---- qkt  Débit d_eau pompé par la pompe k à la période t
@@ -461,18 +474,21 @@ xkt(small,p1,t1)
       -99.21    debits_max(small,p1,t1)
        -3.811   puissances(small,p1,t1)
      (-63.0796) gain_de_charge(small,p1,t1)
+       -1       symetrie_1(small,p1,small,p2,t1)
 
 xkt(small,p1,t2)
                 (.LO, .L, .UP, .M = 0, 0, 1, 0)
       -99.21    debits_max(small,p1,t2)
        -3.811   puissances(small,p1,t2)
      (-63.0796) gain_de_charge(small,p1,t2)
+       -1       symetrie_1(small,p1,small,p2,t2)
 
 xkt(small,p1,t3)
                 (.LO, .L, .UP, .M = 0, 0, 1, 0)
       -99.21    debits_max(small,p1,t3)
        -3.811   puissances(small,p1,t3)
      (-63.0796) gain_de_charge(small,p1,t3)
+       -1       symetrie_1(small,p1,small,p2,t3)
 
 REMAINING 69 ENTRIES SKIPPED
 
@@ -482,34 +498,34 @@ z
                 (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
         1       cost
 
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 15:02:14 Page 4
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/26/22 11:00:39 Page 4
 Pump Scheduling 4WT
-Model Statistics    SOLVE Planification Using MINLP From line 121
+Model Statistics    SOLVE Planification Using MINLP From line 123
 
 
 MODEL STATISTICS
 
-BLOCKS OF EQUATIONS          15     SINGLE EQUATIONS          985
+BLOCKS OF EQUATIONS          16     SINGLE EQUATIONS        1,033
 BLOCKS OF VARIABLES           8     SINGLE VARIABLES          721
-NON ZERO ELEMENTS         2,277     NON LINEAR N-Z            360
+NON ZERO ELEMENTS         2,373     NON LINEAR N-Z            360
 DERIVATIVE POOL              20     CONSTANT POOL              30
 CODE LENGTH               1,872     DISCRETE VARIABLES         72
 
 
-GENERATION TIME      =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GENERATION TIME      =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
 
 
-EXECUTION TIME       =        0.031 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
-GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/14/22 15:02:14 Page 5
+EXECUTION TIME       =        0.016 SECONDS      4 MB  25.1.2 r67455 WEX-WEI
+GAMS 25.1.2  r67455 Released Aug  1, 2018 WEX-WEI x86 64bit/MS Windows - 12/26/22 11:00:39 Page 5
 Pump Scheduling 4WT
-Solution Report     SOLVE Planification Using MINLP From line 121
+Solution Report     SOLVE Planification Using MINLP From line 123
 
 
                S O L V E      S U M M A R Y
 
      MODEL   Planification       OBJECTIVE  z
      TYPE    MINLP               DIRECTION  MINIMIZE
-     SOLVER  DICOPT              FROM LINE  121
+     SOLVER  DICOPT              FROM LINE  123
 
 **** SOLVER STATUS     7 Licensing Problems        
 **** MODEL STATUS      11 Licensing Problem        
@@ -529,13 +545,13 @@ by Ignacio E. Grossmann, Chemical Engineering Faculty,
 *** No license found
 *** To update your license, please contact your distributor.
 *** Too many equations for demo mode
-***   Number of equations          : 985
+***   Number of equations          : 1033
 ***   Maximum allowed              : 300
 *** Too many variables for demo mode
 ***   Number of variables          : 721
 ***   Maximum allowed              : 300
 *** Too many nonzero elements for demo mode
-***   Number of nonzeros           : 2277
+***   Number of nonzeros           : 2373
 ***   Maximum allowed              : 2000
 *** Too many discrete variables for demo mode
 ***   Number of discrete variables : 72
